@@ -1,3 +1,6 @@
+# Uploads e arquivos de mídia do usuário
+media/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
