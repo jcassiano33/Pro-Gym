@@ -2,7 +2,6 @@ from django.db import models
 from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 
-
 #BÁSICO
 class User(AbstractUser):
     pass
@@ -163,3 +162,45 @@ class SolicitacaoTreinador(models.Model):
 
     def __str__(self):
         return self.aluno.nome
+
+#LOJINHA
+class Produto(models.Model):
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField()
+    preco = models.FloatField()
+    categoria = models.CharField(max_length=100)
+    estoque = models.IntegerField()
+
+    def __str__(self):
+        return self.nome
+
+class Carrinho(models.Model):
+    aluno = models.OneToOneField(Aluno, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.aluno.nome
+
+class ItemCarrinho(models.Model):
+    carrinho = models.ForeignKey(Carrinho, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    quantidade = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.produto.nome
+
+class Pedido(models.Model):
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
+    data = models.DateField()
+    total = models.FloatField()
+
+    def __str__(self):
+        return f"Pedido {self.id}"
+
+class ItemPedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    quantidade = models.IntegerField()
+    preco = models.FloatField()
+
+    def __str__(self):
+        return self.produto.nome
