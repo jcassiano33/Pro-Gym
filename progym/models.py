@@ -1,4 +1,5 @@
 from django.db import models
+from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 
 
