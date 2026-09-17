@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, Mensagem, Blog
-from .forms import MensagemForm, PostForm
+from .forms import MensagemForm, PostForm, UserCreationForm
 from django.contrib.auth.decorators import login_required, permission_required
 
 
@@ -12,6 +12,15 @@ def index(request):
     }
     return render(request, "progym/index.html", context)
 
+def cadastro(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = UserCreationForm()
+        
 @login_required
 @permission_required("blog.view_post")
 def posts(request, id_post):
