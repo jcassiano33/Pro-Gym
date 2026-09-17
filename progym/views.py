@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post, Mensagem, Blog
+from .models import Mensagem, Blog, Exercicio
 from .forms import MensagemForm, PostForm, UserCreationForm
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -7,8 +7,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 def index(request):
 
     context = {
-        "posts": Post.objects.all(),
-        "titulo_blog": Blog.objects.first().titulo
+        "exercicios": Exercicio.objects.all(),
+        "titulo_blog":  Blog.objects.first().titulo
     }
     return render(request, "progym/index.html", context)
 
@@ -22,16 +22,16 @@ def cadastro(request):
         form = UserCreationForm()
         
 @login_required
-@permission_required("blog.view_post")
-def posts(request, id_post):
+@permission_required("progym.view_exercicio")
+def exercicios(request, id_exercicio):
     context = {
-        "post": get_object_or_404(Post, id=id_post),
+        "post": get_object_or_404(Exercicio, id=id_exercicio),
     }
-    return render(request, "progym/post.html", context)
+    return render(request, "progym/exercicio.html", context)
 
 @login_required
-@permission_required("blog.add_post")
-def novo_post(request):
+@permission_required("progym.add_exercicio")
+def novo_exercicio(request):
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -43,12 +43,12 @@ def novo_post(request):
     context = {
         "form": form,
     }
-    return render(request, "progym/form_post.html", context)
+    return render(request, "progym/form_exercicio.html", context)
 
 @login_required
-@permission_required("blog.change_post")
-def editar_post(request, id_post):
-    post = get_object_or_404(Post, id=id_post)
+@permission_required("progym.change_exercicio")
+def editar_exercicio(request, id_exercicio):
+    post = get_object_or_404(Exercicio, id=id_exercicio)
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
@@ -64,25 +64,11 @@ def editar_post(request, id_post):
     return render(request, "progym/form_post.html", context)
 
 @login_required
-@permission_required("blog.delete_post")
-def remover_post(request, id_post):
+@permission_required("progym.delete_exercicio")
+def remover_exercicio(request, id_exercicio):
     if request.method == "POST":
-        post = get_object_or_404(Post, id=id_post)
+        post = get_object_or_404(Exercicio, id=id_exercicio)
         post.delete()
         return redirect("index")
     else:
         return render(request, "progym/confirmar_remocao.html")
-
-@login_required
-def contato(request):
-    if request.method == "POST":
-        form = MensagemForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request, "progym/contato_resposta.html")
-    else:
-        form = MensagemForm()
-    context = {
-        "form": form,
-    } 
-    return render(request, "progym/contato.html", context)

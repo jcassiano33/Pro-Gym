@@ -56,6 +56,15 @@ class Treinador(models.Model):
         return self.nome
 
 #TREINO, afins...
+class Treino(models.Model):
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
+    treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
+    descricao = models.TextField()
+
+    def __str__(self):
+        return self.nome
+    
 class Exercicio(models.Model):
     nome = models.CharField(max_length=100)
     grupo_muscular = models.CharField(max_length=100)
@@ -65,16 +74,7 @@ class Exercicio(models.Model):
     def __str__(self):
         return self.nome
 
-class Treino(models.Model):
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
-    treinador = models.ForeignKey(Treinador, on_delete=models.CASCADE)
-    nome = models.CharField(max_length=100)
-    descricao = models.TextField()
-
-    def __str__(self):
-        return self.nome
-
-class ExercicioTreino(models.Model):
+class RegistroTreino(models.Model):
     treino = models.ForeignKey(Treino, on_delete=models.CASCADE)
     exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE)
     series = models.IntegerField()
@@ -83,16 +83,6 @@ class ExercicioTreino(models.Model):
 
     def __str__(self):
         return self.exercicio.nome
-
-class RegistroTreino(models.Model):
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
-    exercicio = models.ForeignKey(Exercicio, on_delete=models.CASCADE)
-    carga = models.FloatField()
-    repeticoes = models.IntegerField()
-    data = models.DateField()
-
-    def __str__(self):
-        return self.aluno.nome
 
 class AvaliacaoFisica(models.Model):
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
