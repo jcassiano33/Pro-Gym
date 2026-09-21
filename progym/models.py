@@ -8,17 +8,17 @@ class User(AbstractUser):
 
 class Aluno(models.Model):
     nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=100)
+    cpf = models.CharField(max_length=100, unique=True)
     data_nasc = models.DateField()
 
     telefone = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100, unique=True)
     endereco = models.CharField(max_length=100)
 
     senha = models.CharField(max_length=100)
 
-    foto = models.ImageField(upload_to="media")
-    bio = models.TextField(max_length=200)
+    foto = models.ImageField(upload_to="media", blank=True)
+    bio = models.TextField(max_length=200, blank=True)
 
     def __str__(self):
         return self.nome
