@@ -2,26 +2,42 @@ from django.db import models
 from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 
-#BÁSICO
+#THE BASICS
 class User(AbstractUser):
-    pass
+
+    tipo_users = (
+        ('aluno', 'Aluno'),
+        ('treinador', 'Treinador'),
+    )
+
+    tipo = models.CharField(
+        max_length=20,
+        choices=tipo_users
+    )
 
 class Aluno(models.Model):
-    nome = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     cpf = models.CharField(max_length=100, unique=True)
     data_nasc = models.DateField()
-
     telefone = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, unique=True)
     endereco = models.CharField(max_length=100)
-
-    senha = models.CharField(max_length=100)
-
     foto = models.ImageField(upload_to="media", blank=True)
     bio = models.TextField(max_length=200, blank=True)
 
     def __str__(self):
         return self.nome
+
+class Treinador(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    cpf = models.CharField(max_length=100, unique=True)
+    data_nasc = models.DateField()
+    telefone = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=100)
+    foto = models.ImageField(upload_to="media", blank=True)
+    bio = models.TextField(max_length=200, blank=True)
+
+    def __str__(self):
+            return self.nome
 
 class Academia(models.Model):
     nome = models.CharField(max_length=100)
@@ -45,15 +61,6 @@ class Matricula(models.Model):
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.academia.nome}"
-
-class Treinador(models.Model):
-    nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=20)
-    telefone = models.CharField(max_length=20)
-    email = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nome
 
 #TREINO, afins...
 class Treino(models.Model):
