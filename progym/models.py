@@ -1,27 +1,42 @@
 from django.db import models
-from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 
-#BÁSICO
+#THE BASICS
 class User(AbstractUser):
-    pass
+
+    tipo_user = (
+        ('aluno', 'Aluno'),
+        ('treinador', 'Treinador'),
+    )
+
+    tipo = models.CharField(
+        max_length=20,
+        choices=tipo_user
+    )
 
 class Aluno(models.Model):
-    nome = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     cpf = models.CharField(max_length=100, unique=True)
     data_nasc = models.DateField()
-
     telefone = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, unique=True)
     endereco = models.CharField(max_length=100)
-
-    senha = models.CharField(max_length=100)
-
     foto = models.ImageField(upload_to="media", blank=True)
     bio = models.TextField(max_length=200, blank=True)
 
     def __str__(self):
-        return self.nome
+         return self.user.get_full_name()
+
+class Treinador(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    cpf = models.CharField(max_length=100, unique=True)
+    data_nasc = models.DateField()
+    telefone = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=100)
+    foto = models.ImageField(upload_to="media", blank=True)
+    bio = models.TextField(max_length=200, blank=True)
+
+    def __str__(self):
+            return self.user.get_full_name()
 
 class Academia(models.Model):
     nome = models.CharField(max_length=100)
@@ -44,16 +59,7 @@ class Matricula(models.Model):
     ativa = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.aluno.nome} - {self.academia.nome}"
-
-class Treinador(models.Model):
-    nome = models.CharField(max_length=100)
-    cpf = models.CharField(max_length=20)
-    telefone = models.CharField(max_length=20)
-    email = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.nome
+        return f"{self.aluno.user.get_full_name()} - {self.academia.nome}"
 
 #TREINO, afins...
 class Treino(models.Model):
@@ -123,4 +129,4 @@ class AvaliacaoFisica(models.Model):
     data = models.DateField()
 
     def __str__(self):
-        return self.aluno.nome
+        return self.aluno.user.get_full_name()
