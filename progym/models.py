@@ -1,5 +1,4 @@
 from django.db import models
-from tinymce.models import HTMLField
 from django.contrib.auth.models import AbstractUser
 
 #THE BASICS
@@ -25,7 +24,19 @@ class Aluno(models.Model):
     bio = models.TextField(max_length=200, blank=True)
 
     def __str__(self):
-        return self.nome
+         return self.user.get_full_name()
+
+class Treinador(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    cpf = models.CharField(max_length=100, unique=True)
+    data_nasc = models.DateField()
+    telefone = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=100)
+    foto = models.ImageField(upload_to="media", blank=True)
+    bio = models.TextField(max_length=200, blank=True)
+
+    def __str__(self):
+            return self.user.get_full_name()
 
 class Treinador(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -60,7 +71,7 @@ class Matricula(models.Model):
     ativa = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.aluno.nome} - {self.academia.nome}"
+        return f"{self.aluno.user.get_full_name()} - {self.academia.nome}"
 
 #TREINO, afins...
 class Treino(models.Model):
@@ -130,4 +141,4 @@ class AvaliacaoFisica(models.Model):
     data = models.DateField()
 
     def __str__(self):
-        return self.aluno.nome
+        return self.aluno.user.get_full_name()
