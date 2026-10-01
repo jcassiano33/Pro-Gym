@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Perfil{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <div class="card mx-auto text-center p-4" style="max-width: 600px;">
+    <div class="card-body">
+      {% if user.avatar %} 
+      <img src="{{ user.avatar.url }}" alt="Avatar" width="150" height="150" class="object-fit-cover rounded-circle mb-3">
+      {% else %}
+      <img src="{% static 'biblioteca/placeholder/avatar.png' %}" alt="Avatar" width="150" height="150" class="object-fit-cover rounded-circle mb-3">
+      {% endif %}
+      <h4 class="mb-3">{{ user.first_name|default:'---' }}</h4>
+
+      <div class="row text-start">
+        <div class="col-12 col-md-6 mb-2">
+          <strong>Nome:</strong> {{ user.first_name|default:'---' }}
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <strong>Sobrenome:</strong> {{ user.last_name|default:'---' }}
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <strong>Data de Nascimento:</strong> {{ user.nascimento|default:'---' }}
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <strong>Idade:</strong> {{ user.idade|default:'--' }}
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <strong>Email:</strong> {{ user.email|default:'---' }}
+        </div>
+        <div class="col-12 col-md-6 mb-2">
+          <strong>Username:</strong> {{ user.username }}
+        </div>
+      </div>
+
+      <a href="{% url 'editar-perfil' %}" class="btn btn-primary w-75 mt-3">Editar Perfil</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

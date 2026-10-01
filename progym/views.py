@@ -72,3 +72,7 @@ def remover_exercicio(request, id_exercicio):
         return redirect("index")
     else:
         return render(request, "progym/confirmar_remocao.html")
+    
+@login_required
+def perfil(request):
+    return render(request, "registration/perfil.html")

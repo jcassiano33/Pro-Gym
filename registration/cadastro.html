@@ -1,0 +1,21 @@
+{% extends 'registration/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Cadastro{% endblock %}
+{% block content %}
+<h2 class="text-center mb-3">Cadastro</h2>
+<form method="post">
+  <style type="text/css" media="all">
+    .form-text {
+      display: none;
+    }
+  </style>
+  {% csrf_token %}
+  {{ form | crispy }}
+  <div class="mx-auto w-75">
+    <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+  </div>
+</form>
+<div class="text-center mt-3">
+  <a href="{% url 'login' %}" class="text-decoration-none">Já tem conta? Fazer login.</a>
+</div>
+{% endblock %}
