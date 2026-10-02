@@ -1,0 +1,99 @@
+/* ===== Variáveis (cores tiradas do protótipo) ===== */
+:root {
+  --pg-fundo: #1f2a3d;
+  --pg-header: #374357;
+  --pg-card: #3a4559;
+  --pg-azul: #3f7ff0;
+  --pg-azul-hover: #2f6bd8;
+  --pg-texto: #ffffff;
+  --pg-texto-suave: #cfd6e2;
+  --pg-raio: 8px;
+}
+
+html, body { min-height: 100%; }
+
+body {
+  background: var(--pg-fundo);
+  color: var(--pg-texto);
+  font-family: "Work Sans", system-ui, sans-serif;
+  font-size: 15px;
+}
+
+/* ===== Cabeçalho ===== */
+.pg-header {
+  height: 64px;
+  background: var(--pg-header);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+.pg-logo { color: var(--pg-texto); font-size: 1.4rem; font-weight: 500; text-decoration: none; }
+.pg-usuario { font-size: .85rem; }
+.pg-menu-btn {
+  background: none; border: 0; color: var(--pg-texto);
+  font-size: 1.8rem; line-height: 1; cursor: pointer;
+}
+
+/* ===== Menu lateral ===== */
+.pg-offcanvas { background: var(--pg-header); color: var(--pg-texto); }
+.pg-link {
+  color: var(--pg-texto); text-decoration: none;
+  padding: .7rem .9rem; border-radius: var(--pg-raio);
+}
+.pg-link:hover { background: var(--pg-card); }
+
+/* ===== Layout ===== */
+.pg-main { padding-top: 2rem; padding-bottom: 3rem; max-width: 960px; }
+.pg-saudacao { font-size: 1rem; font-weight: 400; margin-bottom: 1.5rem; }
+.pg-saudacao span { color: var(--pg-texto-suave); }
+.pg-titulo-tela { font-size: 1.6rem; font-weight: 500; margin-bottom: 1.5rem; }
+.pg-titulo-tela small { display: block; font-size: .95rem; color: var(--pg-texto-suave); font-weight: 400; margin-top: .25rem; }
+.pg-secao { font-size: 1.3rem; font-weight: 500; margin-bottom: 1rem; }
+
+/* ===== Cards ===== */
+.pg-card {
+  background: var(--pg-card);
+  border-radius: var(--pg-raio);
+  padding: 1.25rem;
+  display: block;
+  color: inherit;
+}
+.pg-card-estreito { max-width: 380px; }
+.pg-card-titulo { font-size: 1.1rem; font-weight: 600; margin-bottom: .5rem; }
+.pg-texto { font-size: .9rem; color: var(--pg-texto-suave); }
+.pg-acesso { text-decoration: none; font-weight: 600; transition: background .15s; }
+.pg-acesso:hover { background: #46536b; color: var(--pg-texto); }
+
+/* ===== Botões ===== */
+.pg-btn {
+  background: var(--pg-azul);
+  color: #fff;
+  border: 0;
+  border-radius: var(--pg-raio);
+  font-size: .85rem;
+  padding: .5rem 1.1rem;
+}
+.pg-btn:hover, .pg-btn:focus-visible { background: var(--pg-azul-hover); color: #fff; }
+.pg-btn-sec { background: transparent; border: 1px solid var(--pg-azul); }
+
+/* ===== Formulários ===== */
+.pg-input {
+  background: var(--pg-fundo);
+  border: 1px solid #52607a;
+  color: var(--pg-texto);
+}
+.pg-input:focus { background: var(--pg-fundo); color: var(--pg-texto); border-color: var(--pg-azul); box-shadow: none; }
+.form-label { font-size: .85rem; color: var(--pg-texto-suave); }
+
+/* ===== Foto / produto (placeholders) ===== */
+.pg-foto, .pg-produto {
+  background: var(--pg-fundo);
+  border-radius: var(--pg-raio);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--pg-texto-suave); font-size: .8rem;
+}
+.pg-foto { width: 120px; height: 120px; }
+.pg-produto { height: 110px; }
+
+/* ===== Foco visível ===== */
+a:focus-visible, button:focus-visible { outline: 2px solid var(--pg-azul); outline-offset: 2px; }
