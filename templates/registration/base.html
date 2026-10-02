@@ -1,5 +1,6 @@
+{% load static %}
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="dark">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,25 +9,46 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </head>
-  <body class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-    <div class="card shadow-lg p-4 rounded w-100 m-4" style="max-width: 42rem;">
-      {% if messages %}
-      <div>
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-      <h1 class="text-left py-4 fw-bold mb-4 align-items-center border-bottom">
-        <a class="text-decoration-none" href="{% url 'biblioteca:index' %}">
-          Login
-        </a>
-      </h1>
-      {% block content %}
+  <body class="d-flex flex-column min-vh-100 bg-body">
+    <header class="d-flex justify-content-end gap-3 p-4">
+      {% block topbar %}
+        <a href="{% url 'cadastro' %}" class="btn btn-primary btn-sm rounded-pill px-3">Cadastrar-se</a>
       {% endblock %}
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">Sair</button>
+        </form>
+      {% endif %}
+    </header>
+
+    <div class="flex-grow-1 d-flex align-items-center pb-5">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-10 col-lg-8">
+            <main class="card bg-body-secondary border-0 rounded-4 overflow-hidden">
+              <div class="row g-0">
+                <section class="col-md-6 p-4">
+                  {% if messages %}
+                    {% for message in messages %}
+                      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                  <h1 class="fw-light mb-3">{% block heading %}Login{% endblock %}</h1>
+                  {% block content %}{% endblock %}
+                </section>
+
+                <aside class="col-md-6 d-none d-md-flex align-items-center justify-content-center border-start border-dark p-4" aria-hidden="true">
+                  <img src="{% static 'img/logo_progym.png' %}" alt="" class="img-fluid mh-100">
+                </aside>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
