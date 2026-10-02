@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pro Gym</title>
+
+  <!-- Bootstrap CSS (CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Seu CSS -->
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== CABEÇALHO (igual em todas as telas) ===== -->
+  <header class="pg-header d-flex align-items-center justify-content-between px-4">
+    <a href="#" class="pg-logo" data-tela="inicio">Pro Gym</a>
+    <div class="d-flex align-items-center gap-3">
+      <span class="pg-usuario">Olá (Usuário)! 👋</span>
+      <button class="pg-menu-btn" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#menuLateral" aria-label="Abrir menu">☰</button>
+    </div>
+  </header>
+
+  <!-- ===== MENU LATERAL (☰) ===== -->
+  <div class="offcanvas offcanvas-end pg-offcanvas" tabindex="-1" id="menuLateral">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Menu</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+    </div>
+    <div class="offcanvas-body d-grid gap-1 align-content-start">
+      <a class="pg-link" href="#" data-tela="inicio">🏠 Início</a>
+      <a class="pg-link" href="#" data-tela="treinos">🏋️ Treinos</a>
+      <a class="pg-link" href="#" data-tela="dieta">🥗 Dieta</a>
+      <a class="pg-link" href="#" data-tela="progresso">📈 Progresso</a>
+      <a class="pg-link" href="#" data-tela="avaliacao">⚖️ Avaliação física</a>
+      <a class="pg-link" href="#" data-tela="treinador">👨‍🏫 Treinador</a>
+      <a class="pg-link" href="#" data-tela="perfil">👤 Meu perfil</a>
+      <a class="pg-link" href="#" data-tela="loja">🛒 Loja virtual</a>
+    </div>
+  </div>
+
+  <!-- ===== CONTEÚDO ===== -->
+  <main class="container pg-main">
+
+    <!-- TELA: INÍCIO -->
+    <section class="pg-tela" id="tela-inicio">
+      <h1 class="pg-saudacao">Olá (Usuário)!<br><span>Pronto para mais um treino?</span></h1>
+
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="pg-card h-100 d-flex flex-column">
+            <h2 class="pg-card-titulo">Treino Atual</h2>
+            <p class="pg-texto mb-3">Peito e Tríceps<br>6 exercícios</p>
+            <button class="btn pg-btn mt-auto ms-auto" data-tela="treinos">Começar Treino</button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="pg-card h-100 d-flex flex-column">
+            <h2 class="pg-card-titulo">Minha Dieta</h2>
+            <p class="pg-texto mb-3">Plano Alimentar<br>Dieta Personalizada</p>
+            <button class="btn pg-btn mt-auto ms-auto" data-tela="dieta">Ver Dieta</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg-card text-center mb-5">
+        <h2 class="pg-card-titulo">Seu Progresso</h2>
+        <div class="row my-3">
+          <div class="col-4"><strong>Treinos Realizados</strong><div class="pg-texto">20</div></div>
+          <div class="col-4"><strong>Frequência</strong><div class="pg-texto">4x/Semana</div></div>
+          <div class="col-4"><strong>Última Avaliação</strong><div class="pg-texto">72 kg</div></div>
+        </div>
+        <button class="btn pg-btn" data-tela="progresso">Acompanhar meu Progresso</button>
+      </div>
+
+      <h2 class="pg-secao">Acesso Rápido</h2>
+      <div class="row g-4">
+        <div class="col-md-4"><a href="#" class="pg-card pg-acesso" data-tela="avaliacao">⚖️ Avaliação física</a></div>
+        <div class="col-md-4"><a href="#" class="pg-card pg-acesso" data-tela="treinador">👨‍🏫 Treinador</a></div>
+        <div class="col-md-4"><a href="#" class="pg-card pg-acesso" data-tela="perfil">👤 Meu perfil</a></div>
+      </div>
+    </section>
+
+    <!-- TELA: TREINOS -->
+    <section class="pg-tela" id="tela-treinos" hidden>
+      <h1 class="pg-titulo-tela">Treino Atual <small>Peito e Tríceps</small></h1>
+      <div class="row g-4 mb-4">
+        <div class="col-md-4"><div class="pg-card"><h3 class="pg-card-titulo">Supino reto</h3><p class="pg-texto">3 séries × 12</p><button class="btn pg-btn">Ver exercício</button></div></div>
+        <div class="col-md-4"><div class="pg-card"><h3 class="pg-card-titulo">Crucifixo</h3><p class="pg-texto">3 séries × 12</p><button class="btn pg-btn">Ver exercício</button></div></div>
+        <div class="col-md-4"><div class="pg-card"><h3 class="pg-card-titulo">Tríceps pulley</h3><p class="pg-texto">3 séries × 10</p><button class="btn pg-btn">Ver exercício</button></div></div>
+      </div>
+      <div class="text-center"><button class="btn pg-btn">Começar treino</button></div>
+    </section>
+
+    <!-- TELA: DIETA -->
+    <section class="pg-tela" id="tela-dieta" hidden>
+      <h1 class="pg-titulo-tela">Minha Dieta <small>Plano alimentar personalizado</small></h1>
+      <div class="row g-4">
+        <div class="col-md-6"><div class="pg-card"><h3 class="pg-card-titulo">☀ Café da manhã</h3><p class="pg-texto mb-0">Ovos<br>Pão integral<br>Fruta</p></div></div>
+        <div class="col-md-6"><div class="pg-card"><h3 class="pg-card-titulo">🍛 Almoço</h3><p class="pg-texto mb-0">Arroz<br>Feijão<br>Frango</p></div></div>
+        <div class="col-md-6"><div class="pg-card"><h3 class="pg-card-titulo">☕ Lanche</h3><p class="pg-texto mb-0">Fruta<br>Iogurte</p></div></div>
+        <div class="col-md-6"><div class="pg-card"><h3 class="pg-card-titulo">🌙 Jantar</h3><p class="pg-texto mb-0">Arroz<br>Carne</p></div></div>
+      </div>
+    </section>
+
+    <!-- TELA: PROGRESSO -->
+    <section class="pg-tela" id="tela-progresso" hidden>
+      <h1 class="pg-titulo-tela">Seu Progresso</h1>
+      <div class="row g-4 mb-4 text-center">
+        <div class="col-md-4"><div class="pg-card"><strong>Treinos realizados</strong><div class="pg-texto">20</div></div></div>
+        <div class="col-md-4"><div class="pg-card"><strong>Frequência</strong><div class="pg-texto">4x/sem</div></div></div>
+        <div class="col-md-4"><div class="pg-card"><strong>Última avaliação</strong><div class="pg-texto">72 kg</div></div></div>
+      </div>
+      <div class="pg-card"><h3 class="pg-card-titulo">Histórico de treinos</h3>
+        <ul class="pg-texto mb-0"><li>Peito e Tríceps</li><li>Costas e Bíceps</li><li>Pernas</li></ul></div>
+    </section>
+
+    <!-- TELA: AVALIAÇÃO FÍSICA -->
+    <section class="pg-tela" id="tela-avaliacao" hidden>
+      <h1 class="pg-titulo-tela">Avaliação Física</h1>
+      <div class="row g-4 mb-4">
+        <div class="col-md-6"><div class="pg-card"><strong>Peso</strong><div class="pg-texto">72 kg</div></div></div>
+        <div class="col-md-6"><div class="pg-card"><strong>Altura</strong><div class="pg-texto">1,75 m</div></div></div>
+        <div class="col-md-6"><div class="pg-card"><strong>IMC</strong><div class="pg-texto">23,5</div></div></div>
+        <div class="col-md-6"><div class="pg-card"><strong>Gordura corporal</strong><div class="pg-texto">XX %</div></div></div>
+      </div>
+      <p class="pg-texto">Medidas: Braço XX cm • Peito XX cm • Cintura XX cm</p>
+      <button class="btn pg-btn">Ver histórico</button>
+    </section>
+
+    <!-- TELA: TREINADOR -->
+    <section class="pg-tela" id="tela-treinador" hidden>
+      <h1 class="pg-titulo-tela">Meu Treinador</h1>
+      <div class="pg-card text-center mx-auto pg-card-estreito">
+        <div class="pg-foto mx-auto mb-3">FOTO</div>
+        <h3 class="pg-card-titulo mb-0">Carlos Silva</h3>
+        <p class="pg-texto">Treinador</p>
+        <div class="d-grid gap-2">
+          <button class="btn pg-btn">Avaliar treinador</button>
+          <button class="btn pg-btn pg-btn-sec">Solicitar troca</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA: PERFIL -->
+    <section class="pg-tela" id="tela-perfil" hidden>
+      <h1 class="pg-titulo-tela">Meu Perfil</h1>
+      <div class="pg-card">
+        <div class="row g-4 align-items-start">
+          <div class="col-md-3 text-center"><div class="pg-foto mx-auto">FOTO</div></div>
+          <div class="col-md-9">
+            <label class="form-label" for="nome">Nome</label>
+            <input class="form-control pg-input mb-3" id="nome" type="text" value="Ayhan Everton">
+            <label class="form-label" for="email">E-mail</label>
+            <input class="form-control pg-input mb-3" id="email" type="email" value="ayhan@email.com">
+            <label class="form-label" for="tel">Telefone</label>
+            <input class="form-control pg-input mb-3" id="tel" type="tel" value="(84) 99999-9999">
+            <button class="btn pg-btn">Salvar alterações</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA: LOJA -->
+    <section class="pg-tela" id="tela-loja" hidden>
+      <h1 class="pg-titulo-tela">Loja Virtual</h1>
+      <input class="form-control pg-input mb-4" type="search" placeholder="🔎 Buscar produto...">
+      <div class="row g-4">
+        <div class="col-md-4"><div class="pg-card text-center"><div class="pg-produto mb-2">PRODUTO</div><h3 class="pg-card-titulo">Camisa</h3><p class="pg-texto">R$ 59,90</p><button class="btn pg-btn">Comprar</button></div></div>
+        <div class="col-md-4"><div class="pg-card text-center"><div class="pg-produto mb-2">PRODUTO</div><h3 class="pg-card-titulo">Garrafa</h3><p class="pg-texto">R$ 29,90</p><button class="btn pg-btn">Comprar</button></div></div>
+        <div class="col-md-4"><div class="pg-card text-center"><div class="pg-produto mb-2">PRODUTO</div><h3 class="pg-card-titulo">Luvas</h3><p class="pg-texto">R$ 49,90</p><button class="btn pg-btn">Comprar</button></div></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bootstrap JS (CDN) e script do projeto -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="bootstrap.js"></script>
+</body>
+</html>
