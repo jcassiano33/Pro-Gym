@@ -38,18 +38,6 @@ class Treinador(models.Model):
     def __str__(self):
             return self.user.get_full_name()
 
-class Treinador(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    cpf = models.CharField(max_length=100, unique=True)
-    data_nasc = models.DateField()
-    telefone = models.CharField(max_length=100)
-    endereco = models.CharField(max_length=100)
-    foto = models.ImageField(upload_to="media", blank=True)
-    bio = models.TextField(max_length=200, blank=True)
-
-    def __str__(self):
-            return self.nome
-
 class Academia(models.Model):
     nome = models.CharField(max_length=100)
     endereco = models.CharField(max_length=200)

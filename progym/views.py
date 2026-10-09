@@ -1,14 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Mensagem, Blog, Exercicio
-from .forms import MensagemForm, PostForm, UserCreationForm
+from .models import Treino, Exercicio
+from .forms import  UserCreationForm, ProForm
 from django.contrib.auth.decorators import login_required, permission_required
-
 
 def index(request):
 
     context = {
         "exercicios": Exercicio.objects.all(),
-        "titulo_blog":  Blog.objects.first().titulo
+        "nome_treino":  Treino.objects.first().nome
     }
     return render(request, "progym/index.html", context)
 
@@ -33,7 +32,7 @@ def exercicios(request, id_exercicio):
 @permission_required("progym.add_exercicio")
 def novo_exercicio(request):
     if request.method == "POST":
-        form = PostForm(request.POST, request.FILES)
+        form = ProForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect("index")

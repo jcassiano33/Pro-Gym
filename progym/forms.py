@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mensagem, Post, User
+from .models import Treino, Exercicio,  User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Row, Column, Submit
 from django.contrib.auth.forms import UserCreationForm as DjangoUserCreationForm
@@ -10,17 +10,17 @@ class UserCreationForm(DjangoUserCreationForm):
     class Meta:
         model = User
         fields = ("username",)
-        field_class = {"username": UsernameFierld}
+        field_class = {"username": UsernameField}
 
 class MensagemForm(forms.ModelForm):
     class Meta:
-        model = Mensagem
+        model = Treino
         fields = "__all__"
 
 class ProForm(forms.ModelForm):
 
     class Meta:
-        model = Post
+        model = Exercicio
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
