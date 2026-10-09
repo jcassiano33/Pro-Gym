@@ -1,0 +1,18 @@
+{% extends 'registration/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Cadastro{% endblock %}
+{% block heading %}Cadastro{% endblock %}
+{% block topbar %}
+  <a href="{% url 'login' %}" class="btn btn-primary btn-sm rounded-pill px-3">Entrar</a>
+{% endblock %}
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ form | crispy }}
+  <button type="submit" class="btn btn-primary rounded-pill px-4 mt-3">Cadastrar</button>
+</form>
+
+<div class="mt-3 small">
+  <a href="{% url 'login' %}" class="link-info text-decoration-none">Já tem conta? Fazer login.</a>
+</div>
+{% endblock %}
