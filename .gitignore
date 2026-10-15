@@ -219,3 +219,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Pro Gym
+.env
+staticfiles/
+media/
+db.sqlite3
