@@ -560,10 +560,10 @@ class PerfilTests(BaseTest):
         admin.refresh_from_db()
         self.assertEqual(admin.first_name, "Admin")
 
-
 # ---------------------------------------------------------------------------
 # Dieta
 # ---------------------------------------------------------------------------
+
 class CrudDietaTests(BaseTest):
     def setUp(self):
         self.treinador = criar_treinador("carlos", CPFS[1])
@@ -646,10 +646,10 @@ class CrudDietaTests(BaseTest):
         self.assertEqual(self.client.post(reverse("refeicao_delete", args=[refeicao.pk])).status_code, 404)
         self.assertEqual(Refeicao.objects.count(), 1)
 
-
 # ---------------------------------------------------------------------------
 # Avaliar treinador
 # ---------------------------------------------------------------------------
+
 class AvaliarTreinadorTests(BaseTest):
     def setUp(self):
         self.treinador = criar_treinador("carlos", CPFS[1])
@@ -725,10 +725,10 @@ class AvaliarTreinadorTests(BaseTest):
         )
         self.assertFalse(AvaliacaoTreinador.objects.exists())
 
-
 # ---------------------------------------------------------------------------
 # Solicitar troca de treinador
 # ---------------------------------------------------------------------------
+
 class TrocaTreinadorTests(BaseTest):
     def setUp(self):
         self.atual = criar_treinador("carlos", CPFS[1])
