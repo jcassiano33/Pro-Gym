@@ -1,0 +1,31 @@
+{% extends "progym/base.html" %}
+{% load progym_tags %}
+{% block title %}{{ titulo_pagina }}{% endblock %}
+
+{% block content %}
+<h1 class="pg-titulo-tela">{{ titulo_pagina }}{% if subtitulo %}<small>{{ subtitulo }}</small>{% endif %}</h1>
+
+<form method="post"{% if form.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  {% for titulo, nomes in fieldsets %}
+    <div class="pg-card mb-4">
+      {% if titulo %}<h2 class="pg-card-titulo">{{ titulo }}</h2>{% endif %}
+      <div class="row">
+        {% for nome in nomes %}
+          {% include "progym/crud/_campo.html" with bf=form|campo:nome %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn pg-btn"><i class="bi bi-check-lg"></i> Salvar</button>
+    <a class="btn pg-btn pg-btn-sec" href="{{ voltar_url }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

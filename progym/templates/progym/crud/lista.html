@@ -1,0 +1,99 @@
+{% extends "progym/base.html" %}
+{% load progym_tags %}
+{% block title %}{{ plural|capfirst }}{% endblock %}
+
+{% block content %}
+{% rota prefixo 'list' as url_lista %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="pg-titulo-tela mb-0">{{ plural|capfirst }}</h1>
+  {% if pode_criar %}
+    {% rota prefixo 'create' as url_novo %}
+    <a class="btn pg-btn" href="{{ url_novo }}"><i class="bi bi-plus-lg"></i> {{ rotulo_novo }}</a>
+  {% endif %}
+</div>
+
+{% if busca_habilitada %}
+  <form method="get" class="pg-card mb-4">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md">
+        <input type="search" name="q" value="{{ busca }}" class="form-control pg-input"
+               placeholder="{{ texto_busca }}" aria-label="Buscar">
+      </div>
+      {% if filtro_grupos %}
+        <div class="col-12 col-md-3">
+          <select name="grupo" class="form-select pg-input" aria-label="Grupo muscular">
+            <option value="">Todos os grupos</option>
+            {% for cod, rotulo in filtro_grupos %}
+              <option value="{{ cod }}"{% if cod == grupo_selecionado %} selected{% endif %}>{{ rotulo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+      <div class="col-12 col-md-auto d-flex gap-2">
+        <button type="submit" class="btn pg-btn"><i class="bi bi-search"></i> Buscar</button>
+        {% if busca or grupo_selecionado %}
+          <a class="btn pg-btn pg-btn-sec" href="{{ url_lista }}">Limpar</a>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+{% endif %}
+
+{% if object_list %}
+  <div class="pg-card p-0">
+    <div class="table-responsive">
+      <table class="table table-hover pg-table align-middle mb-0">
+        <thead>
+          <tr>
+            {% for rotulo, caminho in colunas %}<th scope="col">{{ rotulo }}</th>{% endfor %}
+            <th scope="col" class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for obj in object_list %}
+            <tr>
+              {% for rotulo, caminho in colunas %}<td>{{ obj|valor:caminho }}</td>{% endfor %}
+              <td class="text-end text-nowrap">
+                {% if tem_detalhe %}
+                  {% rota prefixo 'detail' obj.pk as url_ver %}
+                  <a class="btn btn-sm pg-btn-icon" href="{{ url_ver }}" title="Ver detalhes"><i class="bi bi-eye"></i></a>
+                {% endif %}
+                {% if linhas_editaveis %}
+                  {% rota prefixo 'update' obj.pk as url_editar %}
+                  <a class="btn btn-sm pg-btn-icon" href="{{ url_editar }}" title="Editar"><i class="bi bi-pencil"></i></a>
+                {% endif %}
+                {% if pode_excluir %}
+                  {% rota prefixo 'delete' obj.pk as url_excluir %}
+                  <a class="btn btn-sm pg-btn-icon perigo" href="{{ url_excluir }}" title="Excluir"><i class="bi bi-trash"></i></a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% if is_paginated %}
+    <nav class="mt-4" aria-label="Paginação">
+      <ul class="pagination justify-content-center align-items-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ qs_extra }}">Anterior</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{{ qs_extra }}">Próxima</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+{% else %}
+  <div class="pg-card text-center py-5">
+    <p class="pg-texto mb-0">Nenhum registro encontrado.</p>
+  </div>
+{% endif %}
+{% endblock %}
