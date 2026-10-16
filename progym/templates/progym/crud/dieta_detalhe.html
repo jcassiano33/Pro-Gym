@@ -1,0 +1,44 @@
+{% extends "progym/crud/detalhe.html" %}
+{% load progym_tags %}
+
+{% block acoes %}
+  {% if pode_editar %}
+    <a class="btn pg-btn" href="{% url 'dieta_update' object.pk %}"><i class="bi bi-pencil"></i> Editar</a>
+    <a class="btn btn-danger" href="{% url 'dieta_delete' object.pk %}"><i class="bi bi-trash"></i> Excluir</a>
+  {% endif %}
+{% endblock %}
+
+{% block extra %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="pg-secao mb-0">Refeições</h2>
+    {% if pode_editar %}
+      <a class="btn btn-sm pg-btn" href="{% url 'refeicao_create' object.pk %}"><i class="bi bi-plus-lg"></i> Adicionar refeição</a>
+    {% endif %}
+  </div>
+
+  {% if refeicoes %}
+    <div class="row g-4 mb-3">
+      {% for r in refeicoes %}
+        <div class="col-md-6">
+          <div class="pg-card h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start">
+              <h3 class="pg-card-titulo">{{ r.get_tipo_display }}</h3>
+              {% if r.horario %}<span class="pg-texto">{{ r.horario|time:"H:i" }}</span>{% endif %}
+            </div>
+            <p class="pg-texto mb-2">{{ r.alimentos|linebreaksbr }}</p>
+            {% if r.calorias %}<p class="small mb-2">{{ r.calorias }} kcal</p>{% endif %}
+            {% if pode_editar %}
+              <div class="text-end mt-auto">
+                <a class="btn btn-sm pg-btn-icon" href="{% url 'refeicao_update' r.pk %}" title="Editar"><i class="bi bi-pencil"></i></a>
+                <a class="btn btn-sm pg-btn-icon perigo" href="{% url 'refeicao_delete' r.pk %}" title="Remover"><i class="bi bi-trash"></i></a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% if total_calorias %}<p class="pg-texto">Total estimado das refeições: <strong>{{ total_calorias }} kcal</strong></p>{% endif %}
+  {% else %}
+    <div class="pg-card"><p class="pg-texto mb-0">Esta dieta ainda não possui refeições.</p></div>
+  {% endif %}
+{% endblock %}

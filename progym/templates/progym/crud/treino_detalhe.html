@@ -1,0 +1,56 @@
+{% extends "progym/crud/detalhe.html" %}
+{% load progym_tags %}
+
+{% block acoes %}
+  {% if pode_editar %}
+    <a class="btn pg-btn" href="{% url 'treino_update' object.pk %}"><i class="bi bi-pencil"></i> Editar</a>
+    <a class="btn btn-danger" href="{% url 'treino_delete' object.pk %}"><i class="bi bi-trash"></i> Excluir</a>
+  {% endif %}
+{% endblock %}
+
+{% block extra %}
+  <div class="pg-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="pg-card-titulo mb-0">Exercícios do treino</h2>
+      {% if pode_editar %}
+        <a class="btn btn-sm pg-btn" href="{% url 'registro_create' object.pk %}"><i class="bi bi-plus-lg"></i> Adicionar exercício</a>
+      {% endif %}
+    </div>
+
+    {% if registros %}
+      <div class="table-responsive">
+        <table class="table pg-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Exercício</th>
+              <th scope="col">Grupo</th>
+              <th scope="col">Séries</th>
+              <th scope="col">Repetições</th>
+              <th scope="col">Carga (kg)</th>
+              {% if pode_editar %}<th scope="col" class="text-end">Ações</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in registros %}
+              <tr>
+                <td><a href="{% url 'exercicio_detail' r.exercicio.pk %}">{{ r.exercicio.nome }}</a></td>
+                <td>{{ r.exercicio.get_grupo_muscular_display }}</td>
+                <td>{{ r.series }}</td>
+                <td>{{ r.repeticoes }}</td>
+                <td>{{ r.carga }}</td>
+                {% if pode_editar %}
+                  <td class="text-end text-nowrap">
+                    <a class="btn btn-sm pg-btn-icon" href="{% url 'registro_update' r.pk %}" title="Editar"><i class="bi bi-pencil"></i></a>
+                    <a class="btn btn-sm pg-btn-icon perigo" href="{% url 'registro_delete' r.pk %}" title="Remover"><i class="bi bi-trash"></i></a>
+                  </td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="pg-texto mb-0">Este treino ainda não possui exercícios.</p>
+    {% endif %}
+  </div>
+{% endblock %}

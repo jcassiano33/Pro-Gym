@@ -1,0 +1,40 @@
+{% extends "progym/base.html" %}
+{% load progym_tags %}
+{% block title %}{{ singular|capfirst }}{% endblock %}
+
+{% block content %}
+{% rota prefixo 'update' object.pk as url_editar %}
+{% rota prefixo 'delete' object.pk as url_excluir %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="pg-titulo-tela mb-0">{{ object }}<small>{{ singular|capfirst }}</small></h1>
+  <div class="d-flex gap-2">
+    <a class="btn pg-btn pg-btn-sec" href="{{ voltar_url }}"><i class="bi bi-arrow-left"></i> Voltar</a>
+    {% block acoes %}
+      {% if pode_gerenciar %}<a class="btn pg-btn" href="{{ url_editar }}"><i class="bi bi-pencil"></i> Editar</a>{% endif %}
+      {% if pode_excluir %}<a class="btn btn-danger" href="{{ url_excluir }}"><i class="bi bi-trash"></i> Excluir</a>{% endif %}
+    {% endblock %}
+  </div>
+</div>
+
+<div class="row g-4">
+  {% if object.foto %}
+    <div class="col-md-3 text-center">
+      <img src="{{ object.foto.url }}" alt="Foto de {{ object }}" class="pg-foto-img">
+    </div>
+  {% endif %}
+  <div class="{% if object.foto %}col-md-9{% else %}col-12{% endif %}">
+    {% for titulo, itens in secoes %}
+      <div class="pg-card mb-4">
+        <h2 class="pg-card-titulo">{{ titulo }}</h2>
+        <dl class="row pg-dl mb-0">
+          {% for rotulo, caminho in itens %}
+            <dt class="col-sm-4">{{ rotulo }}</dt>
+            <dd class="col-sm-8">{{ object|valor:caminho }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+    {% endfor %}
+    {% block extra %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

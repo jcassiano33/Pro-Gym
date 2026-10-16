@@ -1,0 +1,50 @@
+{% extends "progym/base.html" %}
+{% load progym_tags %}
+{% block title %}Solicitação de troca{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h1 class="pg-titulo-tela mb-0">Solicitação de troca<small>{{ object.aluno }}</small></h1>
+  <a class="btn pg-btn pg-btn-sec" href="{{ voltar_url }}"><i class="bi bi-arrow-left"></i> Voltar</a>
+</div>
+
+<div class="pg-card mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="pg-card-titulo mb-0">Detalhes</h2>
+    <span class="badge {% if object.status == 'pendente' %}text-bg-warning{% elif object.status == 'aprovada' %}text-bg-success{% elif object.status == 'recusada' %}text-bg-danger{% else %}text-bg-secondary{% endif %}">{{ object.get_status_display }}</span>
+  </div>
+  <dl class="row pg-dl mb-0">
+    <dt class="col-sm-4">Aluno</dt><dd class="col-sm-8">{{ object.aluno }}</dd>
+    <dt class="col-sm-4">Treinador atual</dt><dd class="col-sm-8">{{ object|valor:"treinador_atual" }}</dd>
+    <dt class="col-sm-4">Treinador desejado</dt><dd class="col-sm-8">{{ object.treinador_desejado|default:"Sem preferência" }}</dd>
+    <dt class="col-sm-4">Solicitada em</dt><dd class="col-sm-8">{{ object.criada_em|date:"d/m/Y H:i" }}</dd>
+    <dt class="col-sm-4">Motivo</dt><dd class="col-sm-8">{{ object.motivo|linebreaksbr }}</dd>
+    {% if object.respondida_em %}
+      <dt class="col-sm-4">Respondida em</dt><dd class="col-sm-8">{{ object.respondida_em|date:"d/m/Y H:i" }}{% if object.respondida_por %} por {{ object.respondida_por.nome_exibicao }}{% endif %}</dd>
+    {% endif %}
+    {% if object.resposta %}
+      <dt class="col-sm-4">Resposta</dt><dd class="col-sm-8">{{ object.resposta|linebreaksbr }}</dd>
+    {% endif %}
+  </dl>
+</div>
+
+{% if pode_responder %}
+  <form method="post" action="{% url 'troca_responder' object.pk %}" class="pg-card mb-4" novalidate>
+    {% csrf_token %}
+    <h2 class="pg-card-titulo">Responder solicitação</h2>
+    <div class="row">
+      {% include "progym/crud/_campo.html" with bf=form_resposta|campo:"decisao" %}
+      {% include "progym/crud/_campo.html" with bf=form_resposta|campo:"novo_treinador" %}
+      {% include "progym/crud/_campo.html" with bf=form_resposta|campo:"resposta" %}
+    </div>
+    <button type="submit" class="btn pg-btn"><i class="bi bi-check-lg"></i> Confirmar resposta</button>
+  </form>
+{% endif %}
+
+{% if pode_cancelar %}
+  <form method="post" action="{% url 'troca_cancelar' object.pk %}" onsubmit="return confirm('Cancelar esta solicitação?');">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg"></i> Cancelar solicitação</button>
+  </form>
+{% endif %}
+{% endblock %}
