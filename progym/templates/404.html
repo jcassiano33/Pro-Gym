@@ -1,0 +1,11 @@
+{% extends "progym/base.html" %}
+{% block title %}Página não encontrada{% endblock %}
+
+{% block content %}
+<div class="pg-card pg-card-estreito mx-auto text-center">
+  <i class="bi bi-search text-warning" style="font-size: 2.5rem;"></i>
+  <h1 class="pg-card-titulo mt-2">Página não encontrada</h1>
+  <p class="pg-texto">O endereço não existe ou o registro foi removido.</p>
+  <a class="btn pg-btn" href="{% url 'index' %}">Voltar ao início</a>
+</div>
+{% endblock %}

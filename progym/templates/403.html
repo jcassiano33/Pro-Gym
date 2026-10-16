@@ -1,0 +1,11 @@
+{% extends "progym/base.html" %}
+{% block title %}Acesso negado{% endblock %}
+
+{% block content %}
+<div class="pg-card pg-card-estreito mx-auto text-center">
+  <i class="bi bi-shield-lock text-warning" style="font-size: 2.5rem;"></i>
+  <h1 class="pg-card-titulo mt-2">Acesso negado</h1>
+  <p class="pg-texto">Seu perfil não tem permissão para acessar esta página.</p>
+  <a class="btn pg-btn" href="{% url 'index' %}">Voltar ao início</a>
+</div>
+{% endblock %}
