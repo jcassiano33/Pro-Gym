@@ -1,0 +1,150 @@
+/* ===== Variáveis (cores tiradas do protótipo) ===== */
+:root {
+  --pg-fundo: #1f2a3d;
+  --pg-header: #374357;
+  --pg-card: #3a4559;
+  --pg-card-hover: #46536b;
+  --pg-azul: #3f7ff0;
+  --pg-azul-hover: #2f6bd8;
+  --pg-texto: #ffffff;
+  --pg-texto-suave: #cfd6e2;
+  --pg-borda: #52607a;
+  --pg-raio: 8px;
+}
+
+html, body { min-height: 100%; }
+
+body {
+  --bs-body-bg: var(--pg-fundo);
+  --bs-body-color: var(--pg-texto);
+  background: var(--pg-fundo);
+  color: var(--pg-texto);
+  font-family: "Work Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+
+a { color: #7fb0ff; }
+a:hover { color: #a9c9ff; }
+
+/* ===== Cabeçalho ===== */
+.pg-header {
+  height: 64px;
+  background: var(--pg-header);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+.pg-logo { color: var(--pg-texto); font-size: 1.4rem; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: .6rem; }
+.pg-logo:hover { color: var(--pg-texto); }
+.pg-logo img { height: 40px; width: 40px; object-fit: contain; background: #fff; border-radius: 50%; padding: 2px; }
+.pg-usuario { font-size: .85rem; }
+.pg-menu-btn {
+  background: none; border: 0; color: var(--pg-texto);
+  font-size: 1.8rem; line-height: 1; cursor: pointer;
+}
+
+/* ===== Menu lateral ===== */
+.pg-offcanvas { background: var(--pg-header); color: var(--pg-texto); }
+.pg-link {
+  color: var(--pg-texto); text-decoration: none;
+  padding: .7rem .9rem; border-radius: var(--pg-raio);
+  display: flex; align-items: center; gap: .6rem;
+  background: none; border: 0; width: 100%; text-align: left; font: inherit;
+}
+.pg-link:hover { background: var(--pg-card); color: var(--pg-texto); }
+.pg-link.ativo { background: var(--pg-card); }
+.pg-menu-titulo { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--pg-texto-suave); margin: 1rem .9rem .25rem; }
+.pg-link-sair { color: #ff8e8e; }
+
+/* ===== Layout ===== */
+.pg-main { padding-top: 2rem; padding-bottom: 3rem; max-width: 1080px; }
+.pg-saudacao { font-size: 1.4rem; font-weight: 500; margin-bottom: 1.5rem; }
+.pg-saudacao span { color: var(--pg-texto-suave); font-size: 1rem; font-weight: 400; }
+.pg-titulo-tela { font-size: 1.6rem; font-weight: 500; margin-bottom: 1.5rem; }
+.pg-titulo-tela small { display: block; font-size: .95rem; color: var(--pg-texto-suave); font-weight: 400; margin-top: .25rem; }
+.pg-secao { font-size: 1.3rem; font-weight: 500; margin-bottom: 1rem; }
+
+/* ===== Cards ===== */
+.pg-card {
+  background: var(--pg-card);
+  border-radius: var(--pg-raio);
+  padding: 1.25rem;
+  display: block;
+  color: inherit;
+}
+.pg-card-estreito { max-width: 480px; }
+.pg-card-titulo { font-size: 1.1rem; font-weight: 600; margin-bottom: .75rem; }
+.pg-texto { font-size: .9rem; color: var(--pg-texto-suave); }
+.pg-acesso { text-decoration: none; font-weight: 600; transition: background .15s; color: var(--pg-texto); }
+.pg-acesso:hover { background: var(--pg-card-hover); color: var(--pg-texto); }
+.pg-numero { font-size: 2rem; font-weight: 600; line-height: 1.1; }
+.pg-indicador { display: flex; align-items: center; gap: 1rem; text-decoration: none; color: var(--pg-texto); transition: background .15s; }
+.pg-indicador:hover { background: var(--pg-card-hover); color: var(--pg-texto); }
+.pg-indicador .bi { font-size: 1.8rem; color: #7fb0ff; }
+
+/* ===== Botões ===== */
+.pg-btn {
+  background: var(--pg-azul);
+  color: #fff;
+  border: 1px solid var(--pg-azul);
+  border-radius: var(--pg-raio);
+  font-size: .85rem;
+  padding: .5rem 1.1rem;
+}
+.pg-btn:hover, .pg-btn:focus-visible { background: var(--pg-azul-hover); border-color: var(--pg-azul-hover); color: #fff; }
+.pg-btn-sec { background: transparent; border: 1px solid var(--pg-azul); }
+.pg-btn-icon {
+  background: var(--pg-fundo); color: var(--pg-texto);
+  border: 1px solid var(--pg-borda); border-radius: var(--pg-raio);
+  padding: .25rem .55rem;
+}
+.pg-btn-icon:hover { background: var(--pg-azul); color: #fff; border-color: var(--pg-azul); }
+.pg-btn-icon.perigo:hover { background: #dc3545; border-color: #dc3545; }
+
+/* ===== Formulários ===== */
+.pg-input, .form-control, .form-select {
+  background-color: var(--pg-fundo);
+  border: 1px solid var(--pg-borda);
+  color: var(--pg-texto);
+}
+.pg-input:focus, .form-control:focus, .form-select:focus {
+  background-color: var(--pg-fundo); color: var(--pg-texto);
+  border-color: var(--pg-azul); box-shadow: 0 0 0 .2rem rgba(63, 127, 240, .25);
+}
+.form-control::placeholder { color: #8795ad; }
+.form-label { font-size: .85rem; color: var(--pg-texto-suave); }
+.form-text { color: var(--pg-texto-suave); }
+.form-check-input:checked { background-color: var(--pg-azul); border-color: var(--pg-azul); }
+input[type="date"] { color-scheme: dark; }
+
+/* ===== Tabelas ===== */
+.pg-table { --bs-table-bg: transparent; --bs-table-color: var(--pg-texto); --bs-table-border-color: var(--pg-borda); --bs-table-hover-bg: var(--pg-card-hover); --bs-table-hover-color: var(--pg-texto); }
+.pg-table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--pg-texto-suave); font-weight: 600; white-space: nowrap; }
+
+/* ===== Detalhes ===== */
+dl.pg-dl dt { color: var(--pg-texto-suave); font-weight: 500; font-size: .85rem; }
+dl.pg-dl dd { margin-bottom: .6rem; }
+
+/* ===== Paginação ===== */
+.pagination { --bs-pagination-bg: var(--pg-card); --bs-pagination-color: var(--pg-texto); --bs-pagination-border-color: var(--pg-borda);
+  --bs-pagination-hover-bg: var(--pg-card-hover); --bs-pagination-hover-color: #fff; --bs-pagination-hover-border-color: var(--pg-borda);
+  --bs-pagination-disabled-bg: var(--pg-fundo); --bs-pagination-disabled-color: #7f8aa0; --bs-pagination-disabled-border-color: var(--pg-borda); }
+
+/* ===== Fotos ===== */
+.pg-foto {
+  background: var(--pg-fundo);
+  border-radius: var(--pg-raio);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--pg-texto-suave); font-size: .8rem;
+  width: 120px; height: 120px;
+}
+.pg-foto-img { width: 160px; height: 160px; object-fit: cover; border-radius: var(--pg-raio); }
+
+/* ===== Telas de autenticação ===== */
+.pg-auth-card { background: var(--pg-card); border-radius: 16px; overflow: hidden; }
+.pg-auth-logo { background: #fff; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+.pg-auth-logo img { max-width: 100%; max-height: 320px; }
+
+/* ===== Foco visível ===== */
+a:focus-visible, button:focus-visible { outline: 2px solid var(--pg-azul); outline-offset: 2px; }
+
