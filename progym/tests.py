@@ -233,3 +233,119 @@ class PermissoesAcessoTests(BaseTest):
             self.assertEqual(self.status(self.admin, nome), 200, nome)
 
 
+
+class CrudAlunoTests(BaseTest):
+    def setUp(self):
+        self.entrar(criar_admin())
+
+    def test_ciclo_completo(self):
+        # criar
+        resposta = self.client.post(reverse("aluno_create"), dados_pessoais("joana", "529.982.247-25"))
+        self.assertRedirects(resposta, reverse("aluno_list"))
+        aluno = Aluno.objects.get(user__username="joana")
+        self.assertEqual(aluno.user.tipo, User.ALUNO)
+
+        # listar / buscar / detalhar
+        self.assertContains(self.client.get(reverse("aluno_list")), "Joana Lima")
+        self.assertContains(self.client.get(reverse("aluno_list"), {"q": "joana"}), "Joana Lima")
+        self.assertNotContains(self.client.get(reverse("aluno_list"), {"q": "inexistente"}), "Joana Lima")
+        self.assertEqual(self.client.get(reverse("aluno_detail", args=[aluno.pk])).status_code, 200)
+
+        # editar (senha em branco mantém a atual)
+        dados = dados_pessoais("joana", CPFS[0], first_name="Joanna", password1="", password2="")
+        resposta = self.client.post(reverse("aluno_update", args=[aluno.pk]), dados)
+        self.assertRedirects(resposta, reverse("aluno_list"))
+        aluno.refresh_from_db()
+        self.assertEqual(aluno.user.first_name, "Joanna")
+        self.assertTrue(aluno.user.check_password(SENHA))
+
+        # excluir remove o usuário também
+        resposta = self.client.post(reverse("aluno_delete", args=[aluno.pk]))
+        self.assertRedirects(resposta, reverse("aluno_list"))
+        self.assertFalse(Aluno.objects.filter(pk=aluno.pk).exists())
+        self.assertFalse(User.objects.filter(username="joana").exists())
+
+    def test_editar_aluno_pode_trocar_senha(self):
+        aluno = criar_aluno()
+        dados = dados_pessoais("maria", CPFS[0], password1="Nova-Senha-789", password2="Nova-Senha-789")
+        self.client.post(reverse("aluno_update", args=[aluno.pk]), dados)
+        aluno.user.refresh_from_db()
+        self.assertTrue(aluno.user.check_password("Nova-Senha-789"))
+
+    def test_nao_permite_username_repetido(self):
+        criar_aluno()
+        resposta = self.client.post(reverse("aluno_create"), dados_pessoais("maria", CPFS[1]))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(User.objects.filter(username__iexact="maria").count(), 1)
+
+
+class CrudTreinadorTests(BaseTest):
+    def setUp(self):
+        self.entrar(criar_admin())
+
+    def test_ciclo_completo(self):
+        resposta = self.client.post(reverse("treinador_create"), dados_pessoais("pedro", CPFS[2]))
+        self.assertRedirects(resposta, reverse("treinador_list"))
+        treinador = Treinador.objects.get(user__username="pedro")
+        self.assertEqual(treinador.user.tipo, User.TREINADOR)
+
+        self.assertContains(self.client.get(reverse("treinador_list")), "Joana Lima")
+        self.assertEqual(self.client.get(reverse("treinador_detail", args=[treinador.pk])).status_code, 200)
+
+        dados = dados_pessoais("pedro", CPFS[2], first_name="Pedro", password1="", password2="")
+        self.client.post(reverse("treinador_update", args=[treinador.pk]), dados)
+        treinador.refresh_from_db()
+        self.assertEqual(treinador.user.first_name, "Pedro")
+
+        self.client.post(reverse("treinador_delete", args=[treinador.pk]))
+        self.assertFalse(Treinador.objects.filter(pk=treinador.pk).exists())
+        self.assertFalse(User.objects.filter(username="pedro").exists())
+
+
+class CrudAcademiaExercicioTests(BaseTest):
+    def setUp(self):
+        self.entrar(criar_admin())
+
+    def test_academia(self):
+        dados = {"nome": "Pro Gym Centro", "endereco": "Rua X, 10", "telefone": "(84) 3333-4444"}
+        self.assertRedirects(self.client.post(reverse("academia_create"), dados), reverse("academia_list"))
+        academia = Academia.objects.get()
+        self.assertContains(self.client.get(reverse("academia_list")), "Pro Gym Centro")
+        self.assertEqual(self.client.get(reverse("academia_detail", args=[academia.pk])).status_code, 200)
+
+        dados["nome"] = "Pro Gym Norte"
+        self.client.post(reverse("academia_update", args=[academia.pk]), dados)
+        academia.refresh_from_db()
+        self.assertEqual(academia.nome, "Pro Gym Norte")
+
+        self.client.post(reverse("academia_delete", args=[academia.pk]))
+        self.assertFalse(Academia.objects.exists())
+
+    def test_academia_telefone_invalido(self):
+        dados = {"nome": "X", "endereco": "Y", "telefone": "123"}
+        self.assertEqual(self.client.post(reverse("academia_create"), dados).status_code, 200)
+        self.assertFalse(Academia.objects.exists())
+
+    def test_exercicio(self):
+        dados = {"nome": "Supino reto", "grupo_muscular": "peito", "descricao": "Peitoral", "video": ""}
+        self.assertRedirects(self.client.post(reverse("exercicio_create"), dados), reverse("exercicio_list"))
+        exercicio = Exercicio.objects.get()
+
+        self.assertContains(self.client.get(reverse("exercicio_list"), {"grupo": "peito"}), "Supino reto")
+        self.assertNotContains(self.client.get(reverse("exercicio_list"), {"grupo": "pernas"}), "Supino reto")
+        self.assertEqual(self.client.get(reverse("exercicio_detail", args=[exercicio.pk])).status_code, 200)
+
+        dados["nome"] = "Supino inclinado"
+        self.client.post(reverse("exercicio_update", args=[exercicio.pk]), dados)
+        exercicio.refresh_from_db()
+        self.assertEqual(exercicio.nome, "Supino inclinado")
+
+        self.client.post(reverse("exercicio_delete", args=[exercicio.pk]))
+        self.assertFalse(Exercicio.objects.exists())
+
+    def test_exercicio_grupo_invalido(self):
+        dados = {"nome": "X", "grupo_muscular": "inexistente", "descricao": "", "video": ""}
+        self.assertEqual(self.client.post(reverse("exercicio_create"), dados).status_code, 200)
+        self.assertFalse(Exercicio.objects.exists())
+
+
