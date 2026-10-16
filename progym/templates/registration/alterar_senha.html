@@ -1,0 +1,22 @@
+{% extends "progym/base.html" %}
+{% block title %}Alterar senha{% endblock %}
+
+{% block content %}
+<h1 class="pg-titulo-tela">Alterar senha</h1>
+<form method="post" class="pg-card pg-card-estreito" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+  {% for bf in form %}
+    <div class="mb-3">
+      <label class="form-label" for="{{ bf.id_for_label }}">{{ bf.label }}</label>
+      {{ bf }}
+      {% if bf.help_text %}<div class="form-text">{{ bf.help_text }}</div>{% endif %}
+      {% for erro in bf.errors %}<div class="invalid-feedback d-block">{{ erro }}</div>{% endfor %}
+    </div>
+  {% endfor %}
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn pg-btn">Salvar</button>
+    <a class="btn pg-btn pg-btn-sec" href="{% url 'perfil' %}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

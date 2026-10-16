@@ -1,0 +1,9 @@
+{% extends "registration/auth_base.html" %}
+{% block title %}E-mail enviado{% endblock %}
+{% block heading %}Verifique seu e-mail{% endblock %}
+{% block topbar %}<a href="{% url 'login' %}" class="btn pg-btn rounded-pill px-3">Entrar</a>{% endblock %}
+
+{% block content %}
+<p>Se existir uma conta com o e-mail informado, enviamos as instruções para redefinir a senha. Confira também a caixa de spam.</p>
+<a href="{% url 'login' %}" class="btn pg-btn rounded-pill px-4">Voltar ao login</a>
+{% endblock %}

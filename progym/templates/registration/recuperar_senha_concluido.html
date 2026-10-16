@@ -1,0 +1,9 @@
+{% extends "registration/auth_base.html" %}
+{% block title %}Senha redefinida{% endblock %}
+{% block heading %}Senha redefinida{% endblock %}
+{% block topbar %}{% endblock %}
+
+{% block content %}
+<p>Sua senha foi alterada com sucesso. Agora você já pode entrar.</p>
+<a href="{% url 'login' %}" class="btn pg-btn rounded-pill px-4">Ir para o login</a>
+{% endblock %}

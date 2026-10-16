@@ -1,0 +1,33 @@
+{% extends "registration/auth_base.html" %}
+{% block title %}Entrar{% endblock %}
+{% block heading %}Login{% endblock %}
+
+{% block content %}
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger py-2 small">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <div class="mb-3">
+    <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+    {{ form.username }}
+    {% for erro in form.username.errors %}<div class="invalid-feedback d-block">{{ erro }}</div>{% endfor %}
+  </div>
+
+  <div class="mb-4">
+    <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+    {{ form.password }}
+    {% for erro in form.password.errors %}<div class="invalid-feedback d-block">{{ erro }}</div>{% endfor %}
+  </div>
+
+  <button type="submit" class="btn pg-btn rounded-pill px-4">Entrar</button>
+</form>
+
+<div class="mt-4 small d-grid gap-1">
+  <a href="{% url 'password_reset' %}" class="text-decoration-none">Esqueceu a senha?</a>
+  <a href="{% url 'cadastro' %}" class="text-decoration-none">Ainda não tem conta? Cadastre-se.</a>
+</div>
+{% endblock %}

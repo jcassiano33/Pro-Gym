@@ -1,0 +1,11 @@
+{% extends "progym/base.html" %}
+{% block title %}Senha alterada{% endblock %}
+
+{% block content %}
+<div class="pg-card pg-card-estreito mx-auto text-center">
+  <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+  <h1 class="pg-card-titulo mt-2">Senha alterada</h1>
+  <p class="pg-texto">Sua senha foi atualizada com sucesso.</p>
+  <a class="btn pg-btn" href="{% url 'index' %}">Voltar ao início</a>
+</div>
+{% endblock %}

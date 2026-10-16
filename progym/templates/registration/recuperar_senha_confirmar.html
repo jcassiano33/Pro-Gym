@@ -1,0 +1,24 @@
+{% extends "registration/auth_base.html" %}
+{% block title %}Nova senha{% endblock %}
+{% block heading %}Nova senha{% endblock %}
+{% block topbar %}<a href="{% url 'login' %}" class="btn pg-btn rounded-pill px-3">Entrar</a>{% endblock %}
+
+{% block content %}
+{% if validlink %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% for bf in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ bf.id_for_label }}">{{ bf.label }}</label>
+        {{ bf }}
+        {% if bf.help_text %}<div class="form-text">{{ bf.help_text }}</div>{% endif %}
+        {% for erro in bf.errors %}<div class="invalid-feedback d-block">{{ erro }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn pg-btn rounded-pill px-4">Salvar nova senha</button>
+  </form>
+{% else %}
+  <div class="alert alert-danger">Este link de redefinição é inválido ou já foi utilizado.</div>
+  <a href="{% url 'password_reset' %}" class="btn pg-btn rounded-pill px-4">Solicitar novo link</a>
+{% endif %}
+{% endblock %}
