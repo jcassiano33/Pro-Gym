@@ -1,0 +1,17 @@
+{% extends "progym/base.html" %}
+{% block title %}Excluir {{ singular }}{% endblock %}
+
+{% block content %}
+<div class="pg-card pg-card-estreito mx-auto text-center">
+  <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2.5rem;"></i>
+  <h1 class="pg-card-titulo mt-2">Excluir {{ singular }}?</h1>
+  <p>Você está prestes a excluir <strong>{{ object }}</strong>.</p>
+  {% if aviso %}<p class="text-warning small">{{ aviso }}</p>{% endif %}
+  <p class="pg-texto">Esta ação não pode ser desfeita.</p>
+  <form method="post" class="d-flex justify-content-center gap-2">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Sim, excluir</button>
+    <a class="btn pg-btn pg-btn-sec" href="{{ voltar_url }}">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

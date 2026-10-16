@@ -1,0 +1,51 @@
+{% extends "progym/crud/detalhe.html" %}
+{% load progym_tags %}
+
+{% block extra %}
+  {% if user|can:'ver_matriculas' %}
+    <div class="pg-card mb-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="pg-card-titulo">Matrículas</h2>
+        {% if user|can:'gerenciar_matriculas' %}<a class="btn btn-sm pg-btn" href="{% url 'matricula_create' %}">Nova matrícula</a>{% endif %}
+      </div>
+      {% for m in matriculas %}
+        <div class="d-flex justify-content-between border-top border-secondary py-2">
+          <span><a href="{% url 'matricula_detail' m.pk %}">{{ m.academia }}</a> · {{ m.get_plano_display }}</span>
+          <span class="pg-texto">até {{ m.data_fim|date:"d/m/Y" }} · {{ m.situacao }}</span>
+        </div>
+      {% empty %}
+        <p class="pg-texto mb-0">Nenhuma matrícula registrada.</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="pg-card mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="pg-card-titulo">Treinos</h2>
+      {% if user|can:'gerenciar_treinos' %}<a class="btn btn-sm pg-btn" href="{% url 'treino_create' %}">Novo treino</a>{% endif %}
+    </div>
+    {% for t in treinos %}
+      <div class="d-flex justify-content-between border-top border-secondary py-2">
+        <a href="{% url 'treino_detail' t.pk %}">{{ t.nome }}</a>
+        <span class="pg-texto">{{ t.treinador }}</span>
+      </div>
+    {% empty %}
+      <p class="pg-texto mb-0">Nenhum treino cadastrado.</p>
+    {% endfor %}
+  </div>
+
+  <div class="pg-card mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="pg-card-titulo">Avaliações físicas</h2>
+      {% if user|can:'gerenciar_avaliacoes' %}<a class="btn btn-sm pg-btn" href="{% url 'avaliacao_create' %}">Nova avaliação</a>{% endif %}
+    </div>
+    {% for a in avaliacoes %}
+      <div class="d-flex justify-content-between border-top border-secondary py-2">
+        <a href="{% url 'avaliacao_detail' a.pk %}">{{ a.data|date:"d/m/Y" }}</a>
+        <span class="pg-texto">{{ a.peso }} kg · IMC {{ a.imc|default:"—" }}</span>
+      </div>
+    {% empty %}
+      <p class="pg-texto mb-0">Nenhuma avaliação registrada.</p>
+    {% endfor %}
+  </div>
+{% endblock %}
