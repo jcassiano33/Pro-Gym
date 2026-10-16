@@ -250,10 +250,10 @@ def _nota_media(treinador):
     media = treinador.avaliacoes_recebidas.aggregate(media=Avg("nota"))["media"]
     return f"{media:.1f}".replace(".", ",") if media is not None else "—"
 
-
 # ===========================================================================
 # Painel inicial
 # ===========================================================================
+
 @login_required
 def index(request):
     usuario = request.user
@@ -316,7 +316,9 @@ def index(request):
 
     return render(request, "progym/index.html", contexto)
 
-
+# ===========================================================================
+# Autenticação e perfil
+# ===========================================================================
 
 def cadastro(request):
     """Auto-cadastro público: cria um usuário do tipo aluno e já o autentica."""
@@ -375,7 +377,9 @@ def perfil(request):
         {"form_usuario": form_usuario, "form_perfil": form_perfil, "perfil_obj": instancia},
     )
 
-
+# ===========================================================================
+# Alunos
+# ===========================================================================
 
 SECOES_PESSOAIS = [
     (
@@ -472,8 +476,9 @@ class AlunoExcluir(AlunoBase, ExcluirBase):
         messages.success(self.request, f'Aluno "{nome}" excluído com sucesso.')
         return HttpResponseRedirect(self.get_success_url())
 
-
-
+# ===========================================================================
+# Treinadores
+# ===========================================================================
 
 class TreinadorBase:
     prefixo = "treinador"
@@ -529,3 +534,857 @@ class TreinadorExcluir(TreinadorBase, ExcluirBase):
         self.object.user.delete()
         messages.success(self.request, f'Treinador "{nome}" excluído com sucesso.')
         return HttpResponseRedirect(self.get_success_url())
+
+# ===========================================================================
+# Academias
+# ===========================================================================
+
+class AcademiaBase:
+    prefixo = "academia"
+    singular = "academia"
+    plural = "academias"
+    model = Academia
+    perm_gerenciar = "gerenciar_academias"
+    perm_excluir = "gerenciar_academias"
+
+
+class AcademiaLista(AcademiaBase, ListaBase):
+    permissao = "ver_academias"
+    campos_busca = ["nome", "endereco"]
+    texto_busca = "Buscar por nome ou endereço"
+    colunas = [("Nome", "nome"), ("Endereço", "endereco"), ("Telefone", "telefone")]
+
+
+class AcademiaDetalhe(AcademiaBase, DetalheBase):
+    permissao = "ver_academias"
+    secoes = [("Academia", [("Nome", "nome"), ("Endereço", "endereco"), ("Telefone", "telefone")])]
+
+
+class AcademiaCriar(AcademiaBase, CriarBase):
+    permissao = "gerenciar_academias"
+    form_class = AcademiaForm
+    success_message = "Academia cadastrada com sucesso!"
+
+
+class AcademiaEditar(AcademiaBase, EditarBase):
+    permissao = "gerenciar_academias"
+    form_class = AcademiaForm
+    success_message = "Academia atualizada com sucesso!"
+
+
+class AcademiaExcluir(AcademiaBase, ExcluirBase):
+    permissao = "gerenciar_academias"
+    aviso = "As matrículas vinculadas a esta academia também serão removidas."
+
+# ===========================================================================
+# Matrículas
+# ===========================================================================
+
+class MatriculaBase:
+    prefixo = "matricula"
+    singular = "matrícula"
+    plural = "matrículas"
+    model = Matricula
+    perm_gerenciar = "gerenciar_matriculas"
+    perm_excluir = "gerenciar_matriculas"
+
+    def escopo(self, queryset):
+        return somente_do_aluno(queryset, self.request.user)
+
+
+class MatriculaLista(MatriculaBase, ListaBase):
+    permissao = "ver_matriculas"
+    select_related = ("aluno__user", "academia")
+    campos_busca = ["aluno__user__first_name", "aluno__user__last_name", "academia__nome", "plano"]
+    texto_busca = "Buscar por aluno, academia ou plano"
+    colunas = [
+        ("Aluno", "aluno"),
+        ("Academia", "academia"),
+        ("Plano", "get_plano_display"),
+        ("Início", "data_inicio"),
+        ("Término", "data_fim"),
+        ("Valor (R$)", "valor"),
+        ("Situação", "situacao"),
+    ]
+
+
+class MatriculaDetalhe(MatriculaBase, DetalheBase):
+    permissao = "ver_matriculas"
+    select_related = ("aluno__user", "academia")
+    secoes = [
+        (
+            "Matrícula",
+            [
+                ("Aluno", "aluno"),
+                ("Academia", "academia"),
+                ("Plano", "get_plano_display"),
+                ("Início", "data_inicio"),
+                ("Término", "data_fim"),
+                ("Valor (R$)", "valor"),
+                ("Situação", "situacao"),
+            ],
+        )
+    ]
+
+
+class MatriculaCriar(MatriculaBase, CriarBase):
+    permissao = "gerenciar_matriculas"
+    form_class = MatriculaForm
+    success_message = "Matrícula registrada com sucesso!"
+
+
+class MatriculaEditar(MatriculaBase, EditarBase):
+    permissao = "gerenciar_matriculas"
+    form_class = MatriculaForm
+    success_message = "Matrícula atualizada com sucesso!"
+
+
+class MatriculaExcluir(MatriculaBase, ExcluirBase):
+    permissao = "gerenciar_matriculas"
+
+# ===========================================================================
+# Exercícios
+# ===========================================================================
+
+class ExercicioBase:
+    prefixo = "exercicio"
+    singular = "exercício"
+    plural = "exercícios"
+    model = Exercicio
+    perm_gerenciar = "gerenciar_exercicios"
+    perm_excluir = "gerenciar_exercicios"
+
+
+class ExercicioLista(ExercicioBase, ListaBase):
+    permissao = "ver_exercicios"
+    campos_busca = ["nome", "grupo_muscular", "descricao"]
+    texto_busca = "Buscar por nome ou descrição"
+    colunas = [("Nome", "nome"), ("Grupo muscular", "get_grupo_muscular_display"), ("Vídeo", "video")]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        grupo = self.request.GET.get("grupo", "").strip()
+        if grupo:
+            queryset = queryset.filter(grupo_muscular=grupo)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        grupo = self.request.GET.get("grupo", "").strip()
+        contexto["filtro_grupos"] = Exercicio.GRUPOS
+        contexto["grupo_selecionado"] = grupo
+        if grupo:
+            contexto["qs_extra"] += "&" + urlencode({"grupo": grupo})
+        return contexto
+
+
+class ExercicioDetalhe(ExercicioBase, DetalheBase):
+    permissao = "ver_exercicios"
+    secoes = [
+        (
+            "Exercício",
+            [
+                ("Nome", "nome"),
+                ("Grupo muscular", "get_grupo_muscular_display"),
+                ("Descrição", "descricao"),
+                ("Vídeo", "video"),
+            ],
+        )
+    ]
+
+
+class ExercicioCriar(ExercicioBase, CriarBase):
+    permissao = "gerenciar_exercicios"
+    form_class = ExercicioForm
+    success_message = "Exercício cadastrado com sucesso!"
+
+
+class ExercicioEditar(ExercicioBase, EditarBase):
+    permissao = "gerenciar_exercicios"
+    form_class = ExercicioForm
+    success_message = "Exercício atualizado com sucesso!"
+
+
+class ExercicioExcluir(ExercicioBase, ExcluirBase):
+    permissao = "gerenciar_exercicios"
+    aviso = "Ele também será removido de todos os treinos em que aparece."
+
+# ===========================================================================
+# Treinos
+# ===========================================================================
+
+class TreinoBase:
+    prefixo = "treino"
+    singular = "treino"
+    plural = "treinos"
+    model = Treino
+    perm_gerenciar = "gerenciar_treinos"
+    perm_excluir = "gerenciar_treinos"
+
+
+class TreinoLista(TreinoBase, ListaBase):
+    permissao = "ver_treinos"
+    select_related = ("aluno__user", "treinador__user")
+    campos_busca = ["nome", "aluno__user__first_name", "aluno__user__last_name"]
+    texto_busca = "Buscar por nome do treino ou do aluno"
+    colunas = [
+        ("Treino", "nome"),
+        ("Aluno", "aluno"),
+        ("Treinador", "treinador"),
+        ("Exercícios", "registros.count"),
+    ]
+
+    def escopo(self, queryset):
+        return treinos_visiveis(self.request.user)
+
+
+class TreinoDetalhe(TreinoBase, DetalheBase):
+    permissao = "ver_treinos"
+    template_name = "progym/crud/treino_detalhe.html"
+    select_related = ("aluno__user", "treinador__user")
+    secoes = [
+        (
+            "Treino",
+            [("Nome", "nome"), ("Aluno", "aluno"), ("Treinador", "treinador"), ("Descrição", "descricao")],
+        )
+    ]
+
+    def escopo(self, queryset):
+        return treinos_visiveis(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        contexto["registros"] = self.object.registros.select_related("exercicio")
+        contexto["pode_editar"] = (
+            usuario_pode(usuario, "gerenciar_treinos")
+            and treinos_gerenciaveis(usuario).filter(pk=self.object.pk).exists()
+        )
+        return contexto
+
+
+class TreinoFormMixin:
+    form_class = TreinoForm
+    fieldsets = [("Treino", ["aluno", "treinador", "nome", "descricao"])]
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class TreinoCriar(TreinoFormMixin, TreinoBase, CriarBase):
+    permissao = "gerenciar_treinos"
+    success_message = "Treino criado com sucesso!"
+
+    def form_valid(self, form):
+        if not self.request.user.is_administrador:
+            treinador = self.request.user.perfil_treinador
+            if treinador is None:
+                form.add_error(None, "Seu usuário não possui perfil de treinador.")
+                return self.form_invalid(form)
+            form.instance.treinador = treinador
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("treino_detail", args=[self.object.pk])
+
+
+class TreinoEditar(TreinoFormMixin, TreinoBase, EditarBase):
+    permissao = "gerenciar_treinos"
+    success_message = "Treino atualizado com sucesso!"
+
+    def escopo(self, queryset):
+        return treinos_gerenciaveis(self.request.user)
+
+    def get_success_url(self):
+        return reverse("treino_detail", args=[self.object.pk])
+
+
+class TreinoExcluir(TreinoBase, ExcluirBase):
+    permissao = "gerenciar_treinos"
+    aviso = "Os exercícios deste treino também serão removidos."
+
+    def escopo(self, queryset):
+        return treinos_gerenciaveis(self.request.user)
+
+
+# --- exercícios dentro de um treino ---------------------------------------
+class RegistroBase:
+    prefixo = "registro"
+    singular = "exercício do treino"
+    plural = "exercícios do treino"
+    model = RegistroTreino
+    permissao = "gerenciar_treinos"
+    perm_gerenciar = "gerenciar_treinos"
+    perm_excluir = "gerenciar_treinos"
+
+
+class RegistroCriar(RegistroBase, CriarBase):
+    form_class = RegistroTreinoForm
+    success_message = "Exercício adicionado ao treino!"
+
+    def get_treino(self):
+        if not hasattr(self, "_treino"):
+            self._treino = get_object_or_404(treinos_gerenciaveis(self.request.user), pk=self.kwargs["treino_pk"])
+        return self._treino
+
+    def get_voltar_url(self):
+        return reverse("treino_detail", args=[self.get_treino().pk])
+
+    def get_success_url(self):
+        return self.get_voltar_url()
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["subtitulo"] = f"Treino: {self.get_treino().nome}"
+        return contexto
+
+    def form_valid(self, form):
+        form.instance.treino = self.get_treino()
+        return super().form_valid(form)
+
+
+class RegistroEditar(RegistroBase, EditarBase):
+    form_class = RegistroTreinoForm
+    success_message = "Exercício do treino atualizado!"
+
+    def escopo(self, queryset):
+        return queryset.filter(treino__in=treinos_gerenciaveis(self.request.user)).select_related("treino", "exercicio")
+
+    def get_voltar_url(self):
+        return reverse("treino_detail", args=[self.object.treino_id])
+
+    def get_success_url(self):
+        return self.get_voltar_url()
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["subtitulo"] = f"Treino: {self.object.treino.nome}"
+        return contexto
+
+
+class RegistroExcluir(RegistroBase, ExcluirBase):
+    aviso = ""
+
+    def escopo(self, queryset):
+        return queryset.filter(treino__in=treinos_gerenciaveis(self.request.user)).select_related("treino", "exercicio")
+
+    def get_voltar_url(self):
+        return reverse("treino_detail", args=[self.object.treino_id])
+
+    def get_success_url(self):
+        return reverse("treino_detail", args=[self.object.treino_id])
+
+# ===========================================================================
+# Avaliações físicas
+# ===========================================================================
+
+CAMPOS_MEDIDAS = [
+    "pescoco", "ombro", "peito", "cintura", "abdomen", "quadril",
+    "braco_direito", "braco_esquerdo", "antebraco_direito", "antebraco_esquerdo",
+    "coxa_direita", "coxa_esquerda", "panturrilha_direita", "panturrilha_esquerda",
+]  # fmt: skip
+CAMPOS_COMPOSICAO = ["percentual_gordura", "massa_gorda", "massa_magra", "percentual_muscular", "agua_corporal"]
+
+
+class AvaliacaoBase:
+    prefixo = "avaliacao"
+    singular = "avaliação física"
+    plural = "avaliações físicas"
+    model = AvaliacaoFisica
+    perm_gerenciar = "gerenciar_avaliacoes"
+    perm_excluir = "gerenciar_avaliacoes"
+
+    def escopo(self, queryset):
+        return somente_do_aluno(queryset, self.request.user)
+
+
+def _rotulo(nome):
+    return AvaliacaoFisica._meta.get_field(nome).verbose_name.capitalize()
+
+
+class AvaliacaoLista(AvaliacaoBase, ListaBase):
+    permissao = "ver_avaliacoes"
+    select_related = ("aluno__user",)
+    campos_busca = ["aluno__user__first_name", "aluno__user__last_name"]
+    texto_busca = "Buscar por nome do aluno"
+    colunas = [
+        ("Aluno", "aluno"),
+        ("Data", "data"),
+        ("Peso (kg)", "peso"),
+        ("Altura (m)", "altura"),
+        ("IMC", "imc"),
+        ("Classificação", "classificacao_imc"),
+    ]
+
+
+class AvaliacaoDetalhe(AvaliacaoBase, DetalheBase):
+    permissao = "ver_avaliacoes"
+    select_related = ("aluno__user",)
+    secoes = [
+        (
+            "Dados básicos",
+            [
+                ("Aluno", "aluno"),
+                ("Data", "data"),
+                ("Peso (kg)", "peso"),
+                ("Altura (m)", "altura"),
+                ("IMC", "imc"),
+                ("Classificação do IMC", "classificacao_imc"),
+                ("Idade metabólica", "idade_metabolica"),
+            ],
+        ),
+        ("Composição corporal", [(_rotulo(c), c) for c in CAMPOS_COMPOSICAO]),
+        ("Medidas", [(_rotulo(c), c) for c in CAMPOS_MEDIDAS]),
+    ]
+
+
+FIELDSETS_AVALIACAO = [
+    ("Dados básicos", ["aluno", "data", "peso", "altura", "idade_metabolica"]),
+    ("Composição corporal", CAMPOS_COMPOSICAO),
+    ("Medidas (cm)", CAMPOS_MEDIDAS),
+]
+
+
+class AvaliacaoCriar(AvaliacaoBase, CriarBase):
+    permissao = "gerenciar_avaliacoes"
+    form_class = AvaliacaoFisicaForm
+    fieldsets = FIELDSETS_AVALIACAO
+    success_message = "Avaliação física registrada com sucesso!"
+
+
+class AvaliacaoEditar(AvaliacaoBase, EditarBase):
+    permissao = "gerenciar_avaliacoes"
+    form_class = AvaliacaoFisicaForm
+    fieldsets = FIELDSETS_AVALIACAO
+    success_message = "Avaliação física atualizada com sucesso!"
+
+
+class AvaliacaoExcluir(AvaliacaoBase, ExcluirBase):
+    permissao = "gerenciar_avaliacoes"
+
+# ===========================================================================
+# Dietas
+# ===========================================================================
+
+def dietas_visiveis(user):
+    if user.is_administrador:
+        return Dieta.objects.all()
+    if user.is_treinador and user.perfil_treinador:
+        return Dieta.objects.filter(treinador=user.perfil_treinador)
+    if user.is_aluno and user.perfil_aluno:
+        return Dieta.objects.filter(aluno=user.perfil_aluno)
+    return Dieta.objects.none()
+
+
+def dietas_gerenciaveis(user):
+    """Administrador altera qualquer dieta; treinador, apenas as suas."""
+    if user.is_administrador:
+        return Dieta.objects.all()
+    if user.is_treinador and user.perfil_treinador:
+        return Dieta.objects.filter(treinador=user.perfil_treinador)
+    return Dieta.objects.none()
+
+
+class DietaBase:
+    prefixo = "dieta"
+    singular = "dieta"
+    plural = "dietas"
+    model = Dieta
+    perm_gerenciar = "gerenciar_dietas"
+    perm_excluir = "gerenciar_dietas"
+
+
+class DietaLista(DietaBase, ListaBase):
+    permissao = "ver_dietas"
+    select_related = ("aluno__user", "treinador__user")
+    campos_busca = ["nome", "aluno__user__first_name", "aluno__user__last_name"]
+    texto_busca = "Buscar por nome da dieta ou do aluno"
+    colunas = [
+        ("Dieta", "nome"),
+        ("Aluno", "aluno"),
+        ("Objetivo", "get_objetivo_display"),
+        ("Meta (kcal/dia)", "calorias_diarias"),
+        ("Refeições", "refeicoes.count"),
+    ]
+
+    def escopo(self, queryset):
+        return dietas_visiveis(self.request.user)
+
+
+class DietaDetalhe(DietaBase, DetalheBase):
+    permissao = "ver_dietas"
+    template_name = "progym/crud/dieta_detalhe.html"
+    select_related = ("aluno__user", "treinador__user")
+    secoes = [
+        (
+            "Plano alimentar",
+            [
+                ("Nome", "nome"),
+                ("Aluno", "aluno"),
+                ("Treinador", "treinador"),
+                ("Objetivo", "get_objetivo_display"),
+                ("Meta diária (kcal)", "calorias_diarias"),
+                ("Descrição", "descricao"),
+            ],
+        )
+    ]
+
+    def escopo(self, queryset):
+        return dietas_visiveis(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        refeicoes = sorted(self.object.refeicoes.all(), key=lambda r: (r.ordem, r.pk))
+        contexto["refeicoes"] = refeicoes
+        contexto["total_calorias"] = sum(r.calorias or 0 for r in refeicoes)
+        contexto["pode_editar"] = (
+            usuario_pode(usuario, "gerenciar_dietas")
+            and dietas_gerenciaveis(usuario).filter(pk=self.object.pk).exists()
+        )
+        return contexto
+
+
+class DietaFormMixin:
+    form_class = DietaForm
+    fieldsets = [("Dieta", ["aluno", "treinador", "nome", "objetivo", "calorias_diarias", "descricao"])]
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class DietaCriar(DietaFormMixin, DietaBase, CriarBase):
+    permissao = "gerenciar_dietas"
+    success_message = "Dieta criada com sucesso!"
+
+    def form_valid(self, form):
+        if not self.request.user.is_administrador:
+            treinador = self.request.user.perfil_treinador
+            if treinador is None:
+                form.add_error(None, "Seu usuário não possui perfil de treinador.")
+                return self.form_invalid(form)
+            form.instance.treinador = treinador
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("dieta_detail", args=[self.object.pk])
+
+
+class DietaEditar(DietaFormMixin, DietaBase, EditarBase):
+    permissao = "gerenciar_dietas"
+    success_message = "Dieta atualizada com sucesso!"
+
+    def escopo(self, queryset):
+        return dietas_gerenciaveis(self.request.user)
+
+    def get_success_url(self):
+        return reverse("dieta_detail", args=[self.object.pk])
+
+
+class DietaExcluir(DietaBase, ExcluirBase):
+    permissao = "gerenciar_dietas"
+    aviso = "As refeições desta dieta também serão removidas."
+
+    def escopo(self, queryset):
+        return dietas_gerenciaveis(self.request.user)
+
+
+# --- refeições dentro de uma dieta ----------------------------------------
+class RefeicaoBase:
+    prefixo = "refeicao"
+    singular = "refeição"
+    plural = "refeições"
+    model = Refeicao
+    permissao = "gerenciar_dietas"
+    perm_gerenciar = "gerenciar_dietas"
+    perm_excluir = "gerenciar_dietas"
+
+
+class RefeicaoCriar(RefeicaoBase, CriarBase):
+    form_class = RefeicaoForm
+    success_message = "Refeição adicionada à dieta!"
+
+    def get_dieta(self):
+        if not hasattr(self, "_dieta"):
+            self._dieta = get_object_or_404(dietas_gerenciaveis(self.request.user), pk=self.kwargs["dieta_pk"])
+        return self._dieta
+
+    def get_voltar_url(self):
+        return reverse("dieta_detail", args=[self.get_dieta().pk])
+
+    def get_success_url(self):
+        return self.get_voltar_url()
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["subtitulo"] = f"Dieta: {self.get_dieta().nome}"
+        return contexto
+
+    def form_valid(self, form):
+        form.instance.dieta = self.get_dieta()
+        return super().form_valid(form)
+
+
+class RefeicaoEditar(RefeicaoBase, EditarBase):
+    form_class = RefeicaoForm
+    success_message = "Refeição atualizada!"
+
+    def escopo(self, queryset):
+        return queryset.filter(dieta__in=dietas_gerenciaveis(self.request.user)).select_related("dieta")
+
+    def get_voltar_url(self):
+        return reverse("dieta_detail", args=[self.object.dieta_id])
+
+    def get_success_url(self):
+        return self.get_voltar_url()
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["subtitulo"] = f"Dieta: {self.object.dieta.nome}"
+        return contexto
+
+
+class RefeicaoExcluir(RefeicaoBase, ExcluirBase):
+    def escopo(self, queryset):
+        return queryset.filter(dieta__in=dietas_gerenciaveis(self.request.user)).select_related("dieta")
+
+    def get_voltar_url(self):
+        return reverse("dieta_detail", args=[self.object.dieta_id])
+
+    def get_success_url(self):
+        return reverse("dieta_detail", args=[self.object.dieta_id])
+
+# ===========================================================================
+# Meu treinador, avaliação do treinador e troca de treinador
+# ===========================================================================
+
+@permissao_requerida("avaliar_treinador")
+def meu_treinador(request):
+    aluno = request.user.perfil_aluno
+    contexto = {"aluno": aluno, "treinador": None, "resumo": None, "minha_avaliacao": None, "troca_pendente": None}
+    if aluno is not None:
+        treinador = aluno.treinador
+        contexto["treinador"] = treinador
+        contexto["troca_pendente"] = SolicitacaoTroca.objects.filter(
+            aluno=aluno, status=SolicitacaoTroca.PENDENTE
+        ).first()
+        if treinador is not None:
+            contexto["resumo"] = treinador.avaliacoes_recebidas.aggregate(media=Avg("nota"), total=Count("id"))
+            contexto["minha_avaliacao"] = AvaliacaoTreinador.objects.filter(aluno=aluno, treinador=treinador).first()
+    return render(request, "progym/meu_treinador.html", contexto)
+
+
+@permissao_requerida("avaliar_treinador")
+def avaliar_treinador(request):
+    """O aluno cria (ou altera) a sua avaliação do treinador atual."""
+    aluno = request.user.perfil_aluno
+    if aluno is None or aluno.treinador is None:
+        messages.warning(request, "Você precisa ter um treinador responsável para poder avaliá-lo.")
+        return redirect("meu_treinador")
+
+    treinador = aluno.treinador
+    existente = AvaliacaoTreinador.objects.filter(aluno=aluno, treinador=treinador).first()
+    if request.method == "POST":
+        form = AvaliacaoTreinadorForm(request.POST, instance=existente)
+        if form.is_valid():
+            avaliacao = form.save(commit=False)
+            avaliacao.aluno = aluno
+            avaliacao.treinador = treinador
+            avaliacao.save()
+            messages.success(request, "Obrigado! Sua avaliação foi registrada.")
+            return redirect("meu_treinador")
+    else:
+        form = AvaliacaoTreinadorForm(instance=existente)
+
+    return render(
+        request,
+        "progym/crud/form.html",
+        {
+            "form": form,
+            "fieldsets": [(None, ["nota", "comentario"])],
+            "titulo_pagina": "Avaliar treinador" if existente is None else "Alterar minha avaliação",
+            "subtitulo": f"Treinador: {treinador}",
+            "voltar_url": reverse("meu_treinador"),
+        },
+    )
+
+
+class AvaliacaoTreinadorBase:
+    prefixo = "avaliacao_treinador"
+    singular = "avaliação de treinador"
+    plural = "avaliações de treinadores"
+    model = AvaliacaoTreinador
+    perm_excluir = "gerenciar_avaliacoes_treinador"
+    tem_detalhe = False
+
+    def escopo(self, queryset):
+        usuario = self.request.user
+        if usuario.is_administrador:
+            return queryset
+        if usuario.is_treinador and usuario.perfil_treinador:
+            return queryset.filter(treinador=usuario.perfil_treinador)
+        if usuario.is_aluno and usuario.perfil_aluno:
+            return queryset.filter(aluno=usuario.perfil_aluno)
+        return queryset.none()
+
+
+class AvaliacaoTreinadorLista(AvaliacaoTreinadorBase, ListaBase):
+    permissao = "ver_avaliacoes_treinador"
+    select_related = ("aluno__user", "treinador__user")
+    campos_busca = [
+        "aluno__user__first_name",
+        "aluno__user__last_name",
+        "treinador__user__first_name",
+        "treinador__user__last_name",
+        "comentario",
+    ]
+    texto_busca = "Buscar por aluno, treinador ou comentário"
+    colunas = [
+        ("Aluno", "aluno"),
+        ("Treinador", "treinador"),
+        ("Nota", "estrelas"),
+        ("Comentário", "comentario"),
+        ("Atualizada em", "atualizada_em"),
+    ]
+
+
+class AvaliacaoTreinadorExcluir(AvaliacaoTreinadorBase, ExcluirBase):
+    permissao = "gerenciar_avaliacoes_treinador"
+
+
+# --- solicitação de troca ---------------------------------------------------
+def trocas_visiveis(user):
+    if user.is_administrador:
+        return SolicitacaoTroca.objects.all()
+    if user.is_treinador and user.perfil_treinador:
+        return SolicitacaoTroca.objects.filter(treinador_atual=user.perfil_treinador)
+    if user.is_aluno and user.perfil_aluno:
+        return SolicitacaoTroca.objects.filter(aluno=user.perfil_aluno)
+    return SolicitacaoTroca.objects.none()
+
+
+class TrocaBase:
+    prefixo = "troca"
+    singular = "solicitação de troca"
+    plural = "solicitações de troca"
+    model = SolicitacaoTroca
+    perm_gerenciar = "solicitar_troca"  # só o aluno cria; ninguém edita
+    perm_excluir = None
+    permite_editar = False
+    rotulo_novo = "Solicitar troca de treinador"
+    titulo_novo = "Solicitar troca de treinador"
+
+    def escopo(self, queryset):
+        return trocas_visiveis(self.request.user)
+
+
+class TrocaLista(TrocaBase, ListaBase):
+    permissao = "ver_trocas"
+    select_related = ("aluno__user", "treinador_atual__user", "treinador_desejado__user")
+    campos_busca = ["aluno__user__first_name", "aluno__user__last_name", "motivo"]
+    texto_busca = "Buscar por aluno ou motivo"
+    colunas = [
+        ("Aluno", "aluno"),
+        ("Treinador atual", "treinador_atual"),
+        ("Treinador desejado", "treinador_desejado"),
+        ("Situação", "get_status_display"),
+        ("Solicitada em", "criada_em"),
+    ]
+
+
+class TrocaDetalhe(TrocaBase, DetalheBase):
+    permissao = "ver_trocas"
+    template_name = "progym/crud/troca_detalhe.html"
+    select_related = ("aluno__user", "treinador_atual__user", "treinador_desejado__user", "respondida_por")
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        troca = self.object
+        pendente = troca.status == SolicitacaoTroca.PENDENTE
+        pode_responder = pendente and usuario_pode(usuario, "responder_trocas")
+        contexto["pode_responder"] = pode_responder
+        contexto["pode_cancelar"] = (
+            pendente and usuario.is_aluno and usuario.perfil_aluno is not None and troca.aluno_id == usuario.perfil_aluno.pk
+        )
+        if pode_responder:
+            contexto["form_resposta"] = RespostaTrocaForm(
+                initial={"novo_treinador": troca.treinador_desejado_id, "decisao": "aprovada"}
+            )
+        return contexto
+
+
+class TrocaCriar(TrocaBase, CriarBase):
+    permissao = "solicitar_troca"
+    form_class = SolicitacaoTrocaForm
+    success_message = "Solicitação enviada! Você será avisado quando for respondida."
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        aluno = self.request.user.perfil_aluno
+        if aluno is None:
+            form.add_error(None, "Seu usuário não possui perfil de aluno.")
+            return self.form_invalid(form)
+        if SolicitacaoTroca.objects.filter(aluno=aluno, status=SolicitacaoTroca.PENDENTE).exists():
+            form.add_error(None, "Você já possui uma solicitação pendente. Aguarde a resposta ou cancele-a.")
+            return self.form_invalid(form)
+        form.instance.aluno = aluno
+        form.instance.treinador_atual = aluno.treinador
+        return super().form_valid(form)
+
+
+@permissao_requerida("solicitar_troca")
+@require_POST
+def troca_cancelar(request, pk):
+    """O aluno cancela uma solicitação que ainda está pendente."""
+    troca = get_object_or_404(trocas_visiveis(request.user), pk=pk)
+    if troca.status != SolicitacaoTroca.PENDENTE:
+        messages.error(request, "Apenas solicitações pendentes podem ser canceladas.")
+    else:
+        troca.status = SolicitacaoTroca.CANCELADA
+        troca.save(update_fields=["status"])
+        messages.success(request, "Solicitação cancelada.")
+    return redirect("troca_detail", pk=troca.pk)
+
+
+@permissao_requerida("responder_trocas")
+@require_POST
+def troca_responder(request, pk):
+    """A administração aprova (definindo o novo treinador) ou recusa a solicitação."""
+    troca = get_object_or_404(SolicitacaoTroca.objects.select_related("aluno"), pk=pk)
+    if troca.status != SolicitacaoTroca.PENDENTE:
+        messages.error(request, "Esta solicitação já foi respondida.")
+        return redirect("troca_detail", pk=troca.pk)
+
+    form = RespostaTrocaForm(request.POST)
+    if not form.is_valid():
+        for erros in form.errors.values():
+            for erro in erros:
+                messages.error(request, erro)
+        return redirect("troca_detail", pk=troca.pk)
+
+    dados = form.cleaned_data
+    with transaction.atomic():
+        troca.status = dados["decisao"]
+        troca.resposta = dados["resposta"]
+        troca.respondida_em = timezone.now()
+        troca.respondida_por = request.user
+        troca.save()
+        if dados["decisao"] == SolicitacaoTroca.APROVADA:
+            aluno = troca.aluno
+            aluno.treinador = dados["novo_treinador"]
+            aluno.save(update_fields=["treinador"])
+
+    if dados["decisao"] == SolicitacaoTroca.APROVADA:
+        messages.success(request, f"Troca aprovada: {troca.aluno} agora é atendido(a) por {dados['novo_treinador']}.")
+    else:
+        messages.success(request, "Solicitação recusada.")
+    return redirect("troca_detail", pk=troca.pk)
