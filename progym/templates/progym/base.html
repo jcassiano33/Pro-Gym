@@ -1,0 +1,83 @@
+{% load static progym_tags %}<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pro Gym | {% block title %}Início{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'progym/img/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'progym/vendor/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'progym/css/styles.css' %}">
+  <script defer src="{% static 'progym/vendor/bootstrap.bundle.min.js' %}"></script>
+  <script defer src="{% static 'progym/js/progym.js' %}"></script>
+</head>
+<body>
+
+  <!-- ===== CABEÇALHO ===== -->
+  <header class="pg-header d-flex align-items-center justify-content-between px-4">
+    <a href="{% url 'index' %}" class="pg-logo">
+      <img src="{% static 'progym/img/logo_progym.png' %}" alt="">
+      Pro Gym
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <span class="pg-usuario d-none d-sm-inline">Olá, {{ user.primeiro_nome }}! 👋</span>
+      <button class="pg-menu-btn" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#menuLateral" aria-label="Abrir menu">☰</button>
+    </div>
+  </header>
+
+  <!-- ===== MENU LATERAL (☰) ===== -->
+  <div class="offcanvas offcanvas-end pg-offcanvas" tabindex="-1" id="menuLateral">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Menu</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+    </div>
+    <div class="offcanvas-body d-grid gap-1 align-content-start">
+      <a class="pg-link" href="{% url 'index' %}"><i class="bi bi-house-door"></i> Início</a>
+
+      {% if user|can:'ver_treinos' or user|can:'ver_dietas' or user|can:'ver_avaliacoes' or user|can:'ver_matriculas' or user|can:'ver_exercicios' or user|can:'avaliar_treinador' %}
+        <div class="pg-menu-titulo">{% if user.is_aluno %}Minha academia{% else %}Treinamento{% endif %}</div>
+      {% endif %}
+      {% if user|can:'ver_treinos' %}<a class="pg-link" href="{% url 'treino_list' %}"><i class="bi bi-clipboard2-pulse"></i> Treinos</a>{% endif %}
+      {% if user|can:'ver_dietas' %}<a class="pg-link" href="{% url 'dieta_list' %}"><i class="bi bi-egg-fried"></i> {% if user.is_aluno %}Minha dieta{% else %}Dietas{% endif %}</a>{% endif %}
+      {% if user|can:'ver_exercicios' %}<a class="pg-link" href="{% url 'exercicio_list' %}"><i class="bi bi-lightning-charge"></i> Exercícios</a>{% endif %}
+      {% if user|can:'ver_avaliacoes' %}<a class="pg-link" href="{% url 'avaliacao_list' %}"><i class="bi bi-speedometer2"></i> Avaliações físicas</a>{% endif %}
+      {% if user|can:'ver_matriculas' %}<a class="pg-link" href="{% url 'matricula_list' %}"><i class="bi bi-card-checklist"></i> {% if user.is_aluno %}Minha matrícula{% else %}Matrículas{% endif %}</a>{% endif %}
+      {% if user|can:'avaliar_treinador' %}<a class="pg-link" href="{% url 'meu_treinador' %}"><i class="bi bi-person-video3"></i> Meu treinador</a>{% endif %}
+
+      {% if user|can:'ver_alunos' or user|can:'ver_treinadores' or user|can:'ver_academias' or user|can:'ver_trocas' or user|can:'ver_avaliacoes_treinador' %}
+        <div class="pg-menu-titulo">{% if user.is_aluno %}Acompanhamento{% else %}Gestão{% endif %}</div>
+      {% endif %}
+      {% if user|can:'ver_alunos' %}<a class="pg-link" href="{% url 'aluno_list' %}"><i class="bi bi-people"></i> Alunos</a>{% endif %}
+      {% if user|can:'ver_treinadores' %}<a class="pg-link" href="{% url 'treinador_list' %}"><i class="bi bi-person-badge"></i> Treinadores</a>{% endif %}
+      {% if user|can:'ver_academias' %}<a class="pg-link" href="{% url 'academia_list' %}"><i class="bi bi-building"></i> Academias</a>{% endif %}
+      {% if user|can:'ver_trocas' %}<a class="pg-link" href="{% url 'troca_list' %}"><i class="bi bi-arrow-left-right"></i> Trocas de treinador</a>{% endif %}
+      {% if user|can:'ver_avaliacoes_treinador' %}<a class="pg-link" href="{% url 'avaliacao_treinador_list' %}"><i class="bi bi-star"></i> {% if user.is_aluno %}Minhas avaliações{% else %}Avaliações de treinadores{% endif %}</a>{% endif %}
+
+      <div class="pg-menu-titulo">Conta</div>
+      <a class="pg-link" href="{% url 'perfil' %}"><i class="bi bi-person-circle"></i> Meu perfil</a>
+      <a class="pg-link" href="{% url 'password_change' %}"><i class="bi bi-key"></i> Alterar senha</a>
+      {% if user.is_administrador %}<a class="pg-link" href="{% url 'admin:index' %}"><i class="bi bi-gear"></i> Administração</a>{% endif %}
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="pg-link pg-link-sair"><i class="bi bi-box-arrow-left"></i> Sair</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== CONTEÚDO ===== -->
+  <main class="container pg-main">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,106 @@
+{% extends "progym/base.html" %}
+{% load progym_tags %}
+{% block title %}Início{% endblock %}
+
+{% block content %}
+<h1 class="pg-saudacao">Olá, {{ user.primeiro_nome }}!<br><span>{% if user.is_aluno %}Pronto para mais um treino?{% else %}Bem-vindo(a) ao painel da Pro Gym.{% endif %}</span></h1>
+
+{% if user.is_aluno and not user.is_administrador %}
+  {# ===================== PAINEL DO ALUNO ===================== #}
+  {% if aluno %}
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="pg-card h-100 d-flex flex-column">
+          <h2 class="pg-card-titulo">Treino Atual</h2>
+          {% if treino_atual %}
+            <p class="pg-texto mb-3">{{ treino_atual.nome }}<br>{{ treino_atual.registros.all|length }} exercício(s) · Treinador: {{ treino_atual.treinador }}</p>
+            <a class="btn pg-btn mt-auto ms-auto" href="{% url 'treino_detail' treino_atual.pk %}">Começar treino</a>
+          {% else %}
+            <p class="pg-texto mb-0">Você ainda não possui treino cadastrado. Fale com seu treinador.</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="pg-card h-100 d-flex flex-column">
+          <h2 class="pg-card-titulo">Minha Dieta</h2>
+          {% if dieta_atual %}
+            <p class="pg-texto mb-3">{{ dieta_atual.nome }}<br>{{ dieta_atual.get_objetivo_display }} · {{ dieta_atual.refeicoes.all|length }} refeição(ões)</p>
+            <a class="btn pg-btn mt-auto ms-auto" href="{% url 'dieta_detail' dieta_atual.pk %}">Ver dieta</a>
+          {% else %}
+            <p class="pg-texto mb-0">Nenhuma dieta cadastrada ainda. Fale com seu treinador.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-6">
+        <div class="pg-card h-100 d-flex flex-column">
+          <h2 class="pg-card-titulo">Minha Matrícula</h2>
+          {% if matricula %}
+            <p class="pg-texto mb-3">Plano {{ matricula.get_plano_display }} · {{ matricula.academia }}<br>Válida até {{ matricula.data_fim|date:"d/m/Y" }}</p>
+            <a class="btn pg-btn mt-auto ms-auto" href="{% url 'matricula_detail' matricula.pk %}">Ver matrícula</a>
+          {% else %}
+            <p class="pg-texto mb-0">Nenhuma matrícula ativa no momento. Procure a recepção.</p>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="pg-card h-100 d-flex flex-column">
+          <h2 class="pg-card-titulo">Meu Treinador</h2>
+          <p class="pg-texto mb-3">{% if aluno.treinador %}{{ aluno.treinador }}{% else %}Você ainda não tem um treinador responsável.{% endif %}</p>
+          <a class="btn pg-btn mt-auto ms-auto" href="{% url 'meu_treinador' %}">Avaliar / solicitar troca</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="pg-card text-center mb-5">
+      <h2 class="pg-card-titulo">Seu Progresso</h2>
+      <div class="row my-3">
+        <div class="col-4"><strong>Treinos</strong><div class="pg-texto">{{ total_treinos }}</div></div>
+        <div class="col-4"><strong>Última avaliação</strong><div class="pg-texto">{% if ultima_avaliacao %}{{ ultima_avaliacao.peso }} kg{% else %}—{% endif %}</div></div>
+        <div class="col-4"><strong>IMC</strong><div class="pg-texto">{% if ultima_avaliacao.imc %}{{ ultima_avaliacao.imc }} ({{ ultima_avaliacao.classificacao_imc }}){% else %}—{% endif %}</div></div>
+      </div>
+      <a class="btn pg-btn" href="{% url 'avaliacao_list' %}">Acompanhar meu progresso</a>
+    </div>
+  {% else %}
+    <div class="alert alert-warning">Seu usuário ainda não possui os dados de aluno. Procure a recepção para completar o cadastro.</div>
+  {% endif %}
+
+  <h2 class="pg-secao">Acesso Rápido</h2>
+  <div class="row g-4">
+    <div class="col-md-4"><a href="{% url 'avaliacao_list' %}" class="pg-card pg-acesso"><i class="bi bi-speedometer2"></i> Avaliação física</a></div>
+    <div class="col-md-4"><a href="{% url 'exercicio_list' %}" class="pg-card pg-acesso"><i class="bi bi-lightning-charge"></i> Exercícios</a></div>
+    <div class="col-md-4"><a href="{% url 'perfil' %}" class="pg-card pg-acesso"><i class="bi bi-person-circle"></i> Meu perfil</a></div>
+    <div class="col-md-4"><a href="{% url 'troca_list' %}" class="pg-card pg-acesso"><i class="bi bi-arrow-left-right"></i> Trocas de treinador</a></div>
+  </div>
+
+{% else %}
+  {# ===================== PAINEL DA EQUIPE ===================== #}
+  {% if cartoes %}
+    <div class="row g-4 mb-5">
+      {% for rotulo, total, destino, icone in cartoes %}
+        <div class="col-6 col-md-4">
+          <a href="{% url destino %}" class="pg-card pg-indicador">
+            <i class="bi {{ icone }}"></i>
+            <div><div class="pg-numero">{{ total }}</div><div class="pg-texto">{{ rotulo }}</div></div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-warning">Seu usuário não possui um perfil de treinador completo. Procure um administrador.</div>
+  {% endif %}
+
+  <h2 class="pg-secao">Ações Rápidas</h2>
+  <div class="row g-4">
+    {% if user|can:'gerenciar_alunos' %}<div class="col-md-4"><a href="{% url 'aluno_create' %}" class="pg-card pg-acesso"><i class="bi bi-person-plus"></i> Novo aluno</a></div>{% endif %}
+    {% if user|can:'gerenciar_treinos' %}<div class="col-md-4"><a href="{% url 'treino_create' %}" class="pg-card pg-acesso"><i class="bi bi-clipboard2-plus"></i> Novo treino</a></div>{% endif %}
+    {% if user|can:'gerenciar_avaliacoes' %}<div class="col-md-4"><a href="{% url 'avaliacao_create' %}" class="pg-card pg-acesso"><i class="bi bi-speedometer2"></i> Nova avaliação física</a></div>{% endif %}
+    {% if user|can:'gerenciar_matriculas' %}<div class="col-md-4"><a href="{% url 'matricula_create' %}" class="pg-card pg-acesso"><i class="bi bi-card-checklist"></i> Nova matrícula</a></div>{% endif %}
+    {% if user|can:'gerenciar_exercicios' %}<div class="col-md-4"><a href="{% url 'exercicio_create' %}" class="pg-card pg-acesso"><i class="bi bi-lightning-charge"></i> Novo exercício</a></div>{% endif %}
+    {% if user|can:'gerenciar_dietas' %}<div class="col-md-4"><a href="{% url 'dieta_create' %}" class="pg-card pg-acesso"><i class="bi bi-egg-fried"></i> Nova dieta</a></div>{% endif %}
+    {% if user|can:'gerenciar_treinadores' %}<div class="col-md-4"><a href="{% url 'treinador_create' %}" class="pg-card pg-acesso"><i class="bi bi-person-badge"></i> Novo treinador</a></div>{% endif %}
+  </div>
+{% endif %}
+{% endblock %}
