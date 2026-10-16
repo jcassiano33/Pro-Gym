@@ -1,0 +1,59 @@
+{% extends "progym/base.html" %}
+{% block title %}Meu treinador{% endblock %}
+
+{% block content %}
+<h1 class="pg-titulo-tela">Meu Treinador</h1>
+
+{% if not aluno %}
+  <div class="alert alert-warning">Seu usuário ainda não possui os dados de aluno. Procure a recepção.</div>
+{% elif not treinador %}
+  <div class="pg-card pg-card-estreito mx-auto text-center">
+    <i class="bi bi-person-x" style="font-size: 2.5rem;"></i>
+    <h2 class="pg-card-titulo mt-2">Você ainda não tem um treinador</h2>
+    <p class="pg-texto">Solicite um treinador e a administração fará a designação.</p>
+    <div class="d-grid gap-2">
+      {% if troca_pendente %}
+        <a class="btn pg-btn pg-btn-sec" href="{% url 'troca_detail' troca_pendente.pk %}">Solicitação pendente</a>
+      {% else %}
+        <a class="btn pg-btn" href="{% url 'troca_create' %}">Solicitar treinador</a>
+      {% endif %}
+    </div>
+  </div>
+{% else %}
+  <div class="pg-card text-center mx-auto pg-card-estreito">
+    {% if treinador.foto %}
+      <img src="{{ treinador.foto.url }}" alt="Foto de {{ treinador }}" class="pg-foto-img mb-3">
+    {% else %}
+      <div class="pg-foto mx-auto mb-3">FOTO</div>
+    {% endif %}
+    <h2 class="pg-card-titulo mb-0">{{ treinador }}</h2>
+    <p class="pg-texto mb-1">Treinador{% if treinador.telefone %} · {{ treinador.telefone }}{% endif %}</p>
+    {% if treinador.bio %}<p class="pg-texto small">{{ treinador.bio }}</p>{% endif %}
+
+    <p class="mb-1">
+      {% if resumo.total %}
+        <span class="text-warning">★</span> <strong>{{ resumo.media|floatformat:1 }}</strong>
+        <span class="pg-texto">({{ resumo.total }} avaliaç{{ resumo.total|pluralize:"ão,ões" }})</span>
+      {% else %}
+        <span class="pg-texto">Ainda sem avaliações</span>
+      {% endif %}
+    </p>
+    {% if minha_avaliacao %}
+      <p class="pg-texto small">Sua avaliação: <span class="text-warning">{{ minha_avaliacao.estrelas }}</span></p>
+    {% endif %}
+
+    <div class="d-grid gap-2 mt-3">
+      <a class="btn pg-btn" href="{% url 'avaliar_treinador' %}">{% if minha_avaliacao %}Alterar minha avaliação{% else %}Avaliar treinador{% endif %}</a>
+      {% if troca_pendente %}
+        <a class="btn pg-btn pg-btn-sec" href="{% url 'troca_detail' troca_pendente.pk %}">Troca solicitada (ver andamento)</a>
+      {% else %}
+        <a class="btn pg-btn pg-btn-sec" href="{% url 'troca_create' %}">Solicitar troca</a>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+
+{% if aluno %}
+  <p class="text-center mt-4"><a href="{% url 'troca_list' %}">Ver minhas solicitações de troca</a></p>
+{% endif %}
+{% endblock %}
