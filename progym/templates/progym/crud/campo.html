@@ -1,0 +1,13 @@
+<div class="{% if bf.widget_type == 'textarea' or bf.widget_type == 'clearablefile' %}col-12{% else %}col-md-6{% endif %} mb-3">
+  {% if bf.widget_type == 'checkbox' %}
+    <div class="form-check">
+      {{ bf }}
+      <label class="form-check-label" for="{{ bf.id_for_label }}">{{ bf.label }}</label>
+    </div>
+  {% else %}
+    <label class="form-label" for="{{ bf.id_for_label }}">{{ bf.label }}{% if bf.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+    {{ bf }}
+  {% endif %}
+  {% if bf.help_text %}<div class="form-text">{{ bf.help_text }}</div>{% endif %}
+  {% for erro in bf.errors %}<div class="invalid-feedback d-block">{{ erro }}</div>{% endfor %}
+</div>
